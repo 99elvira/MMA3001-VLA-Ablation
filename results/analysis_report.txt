@@ -1,0 +1,117 @@
+==========================================================================================
+MMA3001 VLA Robotic Grasping Ablation Analysis Report
+==========================================================================================
+Generated at: 2026-09-30 17:01:30
+
+1. Experiment summary
+------------------------------------------------------------------------------------------
+E0 baseline: 28/30 = 93.33%
+    Wilson 95% CI: [78.68%, 98.15%]
+    eval_s: 3359.743375301361, eval_ep_s: 111.9914458433787
+E1 no_agentview: 0/30 = 0.00%
+    Wilson 95% CI: [0.00%, 11.35%]
+    eval_s: 4933.903322935104, eval_ep_s: 164.4634440978368
+E2 no_wrist: 0/30 = 0.00%
+    Wilson 95% CI: [0.00%, 11.35%]
+    eval_s: 5034.228844642639, eval_ep_s: 167.80762815475464
+E3 no_state: 0/30 = 0.00%
+    Wilson 95% CI: [0.00%, 11.35%]
+    eval_s: 5561.966193199158, eval_ep_s: 185.3988731066386
+E4 use_chunk: 17/30 = 56.67%
+    Wilson 95% CI: [39.20%, 72.62%]
+    eval_s: 238.98815155029297, eval_ep_s: 7.966271718343099
+E5 ema: 17/30 = 56.67%
+    Wilson 95% CI: [39.20%, 72.62%]
+    eval_s: 3910.688687324524, eval_ep_s: 130.35628957748412
+
+2. Overall ANOVA across 6 groups
+------------------------------------------------------------------------------------------
+One-way ANOVA: F = 50.406426, p = 4.210680e-32
+
+3. Pairwise comparisons vs E0 (E1-E5), Holm-adjusted
+------------------------------------------------------------------------------------------
+Comparison     Diff(pp)             95% CI(pp)    Cohen d      Welch p     Fisher p       Holm p    Sig
+E1 vs E0         -93.33      [-102.26, -84.41]         NA           NA   8.3880e-15   4.1940e-14    ***
+E2 vs E0         -93.33      [-102.26, -84.41]         NA           NA   8.3880e-15   4.1940e-14    ***
+E3 vs E0         -93.33      [-102.26, -84.41]         NA           NA   8.3880e-15   4.1940e-14    ***
+E4 vs E0         -36.67       [-56.52, -16.81]    -0.9190           NA   2.1286e-03   4.2571e-03     **
+E5 vs E0         -36.67       [-56.52, -16.81]    -0.9190           NA   2.1286e-03   4.2571e-03     **
+
+4. Statistical notes
+------------------------------------------------------------------------------------------
+- Wilson 95% CI is reported for each group's success rate.
+- Welch t-test uses equal_var=False. If any group's variance is zero, Welch is invalid and Fisher exact test is used instead.
+- Cohen's d uses pooled standard deviation. If any group's variance is zero, d is NaN (not applicable).
+- For E1/E2/E3, success rate is 0/30, variance is zero. Cohen's d is not applicable. Fisher exact test is used.
+- Holm correction is applied to the 5 comparisons E1-E5 vs E0.
+
+5. Per-task success details
+------------------------------------------------------------------------------------------
+E0 (baseline):
+    task 0: [True, False, True] -> 2/3
+    task 1: [True, True, True] -> 3/3
+    task 2: [True, True, True] -> 3/3
+    task 3: [True, True, True] -> 3/3
+    task 4: [True, True, True] -> 3/3
+    task 5: [True, True, False] -> 2/3
+    task 6: [True, True, True] -> 3/3
+    task 7: [True, True, True] -> 3/3
+    task 8: [True, True, True] -> 3/3
+    task 9: [True, True, True] -> 3/3
+E1 (no_agentview):
+    task 0: [False, False, False] -> 0/3
+    task 1: [False, False, False] -> 0/3
+    task 2: [False, False, False] -> 0/3
+    task 3: [False, False, False] -> 0/3
+    task 4: [False, False, False] -> 0/3
+    task 5: [False, False, False] -> 0/3
+    task 6: [False, False, False] -> 0/3
+    task 7: [False, False, False] -> 0/3
+    task 8: [False, False, False] -> 0/3
+    task 9: [False, False, False] -> 0/3
+E2 (no_wrist):
+    task 0: [False, False, False] -> 0/3
+    task 1: [False, False, False] -> 0/3
+    task 2: [False, False, False] -> 0/3
+    task 3: [False, False, False] -> 0/3
+    task 4: [False, False, False] -> 0/3
+    task 5: [False, False, False] -> 0/3
+    task 6: [False, False, False] -> 0/3
+    task 7: [False, False, False] -> 0/3
+    task 8: [False, False, False] -> 0/3
+    task 9: [False, False, False] -> 0/3
+E3 (no_state):
+    task 0: [False, False, False] -> 0/3
+    task 1: [False, False, False] -> 0/3
+    task 2: [False, False, False] -> 0/3
+    task 3: [False, False, False] -> 0/3
+    task 4: [False, False, False] -> 0/3
+    task 5: [False, False, False] -> 0/3
+    task 6: [False, False, False] -> 0/3
+    task 7: [False, False, False] -> 0/3
+    task 8: [False, False, False] -> 0/3
+    task 9: [False, False, False] -> 0/3
+E4 (use_chunk):
+    task 0: [False, True, False] -> 1/3
+    task 1: [True, True, True] -> 3/3
+    task 2: [True, True, True] -> 3/3
+    task 3: [True, False, False] -> 1/3
+    task 4: [False, True, False] -> 1/3
+    task 5: [True, True, False] -> 2/3
+    task 6: [False, True, True] -> 2/3
+    task 7: [False, True, False] -> 1/3
+    task 8: [True, True, False] -> 2/3
+    task 9: [False, True, False] -> 1/3
+E5 (ema):
+    task 0: [True, True, False] -> 2/3
+    task 1: [False, False, True] -> 1/3
+    task 2: [False, True, True] -> 2/3
+    task 3: [False, False, False] -> 0/3
+    task 4: [False, False, True] -> 1/3
+    task 5: [True, True, True] -> 3/3
+    task 6: [True, True, False] -> 2/3
+    task 7: [True, False, False] -> 1/3
+    task 8: [True, True, True] -> 3/3
+    task 9: [True, False, True] -> 2/3
+
+End of report.

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MMA3001 Ablation Results - Interactive Table</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #4a7ebb; color: white; cursor: pointer; user-select: none; }
+        th:hover { background: #3a6ea8; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        .sig-3 { color: darkred; font-weight: bold; }
+        .sig-2 { color: red; font-weight: bold; }
+        .sig-1 { color: orange; font-weight: bold; }
+        .sig-ns { color: gray; }
+    </style>
+</head>
+<body>
+
+<h1>MMA3001 VLA Ablation Study - Results Summary</h1>
+<p>Click a column header to sort. Data from <code>results/summary.csv</code>.</p>
+
+<table id="resultsTable">
+    <thead>
+        <tr>
+            <th onclick="sortTable(0)">Experiment</th>
+            <th onclick="sortTable(1)">Name</th>
+            <th onclick="sortTable(2)">Success Count</th>
+            <th onclick="sortTable(3)">N Episodes</th>
+            <th onclick="sortTable(4)">Success Rate (%)</th>
+            <th onclick="sortTable(5)">Wilson Lower (%)</th>
+            <th onclick="sortTable(6)">Wilson Upper (%)</th>
+            <th onclick="sortTable(7)">Diff vs E0 (pp)</th>
+            <th onclick="sortTable(8)">Cohen's d</th>
+            <th onclick="sortTable(9)">Holm p</th>
+            <th onclick="sortTable(10)">Sig.</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>E0</td><td>baseline</td><td>28</td><td>30</td><td>93.33</td><td>78.68</td><td>98.15</td><td>0.00</td><td>NA</td><td>NA</td><td></td></tr>
+        <tr><td>E1</td><td>no_agentview</td><td>0</td><td>30</td><td>0.00</td><td>0.00</td><td>11.35</td><td>-93.33</td><td>NA</td><td>4.19e-14</td><td class="sig-3">***</td></tr>
+        <tr><td>E2</td><td>no_wrist</td><td>0</td><td>30</td><td>0.00</td><td>0.00</td><td>11.35</td><td>-93.33</td><td>NA</td><td>4.19e-14</td><td class="sig-3">***</td></tr>
+        <tr><td>E3</td><td>no_state</td><td>0</td><td>30</td><td>0.00</td><td>0.00</td><td>11.35</td><td>-93.33</td><td>NA</td><td>4.19e-14</td><td class="sig-3">***</td></tr>
+        <tr><td>E4</td><td>use_chunk</td><td>17</td><td>30</td><td>56.67</td><td>39.20</td><td>72.62</td><td>-36.67</td><td>-0.919</td><td>4.26e-03</td><td class="sig-2">**</td></tr>
+        <tr><td>E5</td><td>ema</td><td>17</td><td>30</td><td>56.67</td><td>39.20</td><td>72.62</td><td>-36.67</td><td>-0.919</td><td>4.26e-03</td><td class="sig-2">**</td></tr>
+    </tbody>
+</table>
+
+<script>
+function sortTable(colIndex) {
+    const table = document.getElementById("resultsTable");
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+    const asc = !table.dataset["sortAsc" + colIndex] || table.dataset["sortAsc" + colIndex] === "false";
+    table.dataset["sortAsc" + colIndex] = asc;
+
+    rows.sort((a, b) => {
+        const va = a.cells[colIndex].innerText.trim();
+        const vb = b.cells[colIndex].innerText.trim();
+        const na = parseFloat(va);
+        const nb = parseFloat(vb);
+        if (!isNaN(na) && !isNaN(nb)) {
+            return asc ? na - nb : nb - na;
+        }
+        return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+
+    rows.forEach(r => tbody.appendChild(r));
+}
+</script>
+
+</body>
+</html>
