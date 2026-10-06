@@ -1,14 +1,29 @@
+# ---------- Python ----------
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .ipynb_checkpoints/
 .pytest_cache/
 *.egg-info/
 dist/
 build/
+
+# ---------- Environment ----------
 .env
-*.log
-outputs/
 envs/
 models/
 LIBERO/
 lerobot/
+
+# ---------- Logs and outputs ----------
+*.log
+outputs/
+
+# ---------- MMA3001: keep evaluation results and figures ----------
+!results/
+!results/**/*.txt
+!results/**/*.csv
+!results/**/*.png
+!results/figures/
+!results/figures/*.png
