@@ -1,0 +1,23 @@
+name: Reproduce analysis and verify tests
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python -m pytest tests -v --html=docs/test_report.html --self-contained-html
+      - run: python -m src.analysis
+      - run: python -m pdoc src -o docs/api
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-analysis
+          path: |
+            docs/test_report.html
+            docs/api
+            results/*summary.csv
+            results/paired_outcomes.csv
+            results/figures

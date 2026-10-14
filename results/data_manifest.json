@@ -1,0 +1,128 @@
+[
+  {
+    "condition": "Q1",
+    "source": "0.05/P5_x10.txt",
+    "archived": "Q1_results.txt",
+    "sha256": "27dcdd36b5ec45373166514062e9a8d76f18fde04518aac82f432f5754e29f92",
+    "status": "Completed 30 episodes; ±0.05 m magnitude confirmed by experimenter; exact XML revision not archived"
+  },
+  {
+    "condition": "Q2",
+    "source": "0.05/P6_boundary_x0(1).txt",
+    "archived": "Q2_results.txt",
+    "sha256": "321ad01c3d8306a817169960347181bcf199817bc135184b59b344d98359a7a4",
+    "status": "Completed 30 episodes; ±0.05 m magnitude confirmed by experimenter; exact XML revision not archived"
+  },
+  {
+    "condition": "Q3",
+    "source": "0.05/P7_y05(1).txt",
+    "archived": "Q3_results.txt",
+    "sha256": "5de7db18d1c7459d158ea382000c35f0692725508e98bb2c4464577f9ac24f3b",
+    "status": "Completed 30 episodes; ±0.05 m magnitude confirmed by experimenter; exact XML revision not archived"
+  },
+  {
+    "condition": "Q4",
+    "source": "0.05/P8_z05.txt",
+    "archived": "Q4_results.txt",
+    "sha256": "dfb703221f7c18937e97f62ea66787b94c0f2d6eb778c93436ef11ecc60e94f5",
+    "status": "Completed 30 episodes; ±0.05 m magnitude confirmed by experimenter; exact XML revision not archived"
+  },
+  {
+    "source": "消融实验/baseline_results.txt",
+    "sha256": "973703d7b1d991a90dba62946a50c47703ee3c7f452ea99496db9b2464dec334",
+    "matching_archived_logs": [
+      "baseline_results.txt"
+    ]
+  },
+  {
+    "source": "消融实验/ema_results.txt",
+    "sha256": "797df6a0e895347e34f9771f0e709b3aac595af6ff9be644f01ea87662410f65",
+    "matching_archived_logs": [
+      "ema_results.txt"
+    ]
+  },
+  {
+    "source": "消融实验/no_agentview_results.txt",
+    "sha256": "47e62ff0e872317f692f821b2a99003af97e6134cfb0ff1bba9c5366d753bf2f",
+    "matching_archived_logs": [
+      "no_agentview_results.txt"
+    ]
+  },
+  {
+    "source": "消融实验/no_state_results.txt",
+    "sha256": "5cfdd8dc2248a0759fa2c6517af4f52a485697c1eb6c2b4809a077ab647c56d4",
+    "matching_archived_logs": [
+      "no_state_results.txt"
+    ]
+  },
+  {
+    "source": "消融实验/no_wrist_results.txt",
+    "sha256": "e09f12267db74d534ff60f0bd653465871874498b3f2473609701de7a284aa69",
+    "matching_archived_logs": [
+      "no_wrist_results.txt"
+    ]
+  },
+  {
+    "source": "消融实验/use_chunk_results.txt",
+    "sha256": "70694bf0afb1edf92ca244ee5dafe67e9227da5f2d6758e3a0b88fae407f131f",
+    "matching_archived_logs": [
+      "use_chunk_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P1_ext_z_up_results.txt",
+    "sha256": "fdb64808beaf698aa78a119fb4d6a16101aaf79f130ec98d34c4e43de5d0c26a",
+    "matching_archived_logs": [
+      "P1_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P2_ext_z_down_results.txt",
+    "sha256": "1df7aa89132bd2602899949c5030136219b43ea5611a971812afd1f5a2272657",
+    "matching_archived_logs": [
+      "P2_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P3_ext_x_left_results.txt",
+    "sha256": "6356d06a906105b01ec5bed28009fcf590ffc29057fe59f8421fe0c59dfadcaa",
+    "matching_archived_logs": [
+      "P3_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P4_ext_x_right_results.txt",
+    "sha256": "be59992108e205b61763b9e1fb47ef4a80ceab67f61fd772896282044d3e9b4c",
+    "matching_archived_logs": [
+      "P4_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P5_wrist_results.txt",
+    "sha256": "8ef242110919610a74714c15ab57a211cc7ecac543f5a208e9f27bbc1477962b",
+    "matching_archived_logs": [
+      "P5_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P6_wrist_results.txt",
+    "sha256": "8776182546e10c0101d687f1032fb8abe014a9dd6ee3a4f703906d727892bfd7",
+    "matching_archived_logs": [
+      "P6_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P7_wrist_results.txt",
+    "sha256": "aba2b6eab65adb1f8f77d97ae14ad682d622a7daac7a7cd62c2e2ebecf279f4c",
+    "matching_archived_logs": [
+      "P7_results.txt"
+    ]
+  },
+  {
+    "source": "相机角度扰动实验/P8_wrist_results.txt",
+    "sha256": "1115b713894f5d3a489baad40947ecff33ca1e60d326d65cc7418c120609a74e",
+    "matching_archived_logs": [
+      "P8_results.txt"
+    ]
+  }
+]

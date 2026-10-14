@@ -49,6 +49,9 @@
                     <a class="variable" href="#EXPERIMENTS">EXPERIMENTS</a>
             </li>
             <li>
+                    <a class="variable" href="#CAMERA_EXPERIMENTS">CAMERA_EXPERIMENTS</a>
+            </li>
+            <li>
                     <a class="variable" href="#RANDOM_SEED">RANDOM_SEED</a>
             </li>
             <li>
@@ -83,7 +86,7 @@
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="c1"># Base project directory</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">r</span><span class="s2">"D:\MMA3001_Project"</span><span class="p">)</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="n">RESULTS_DIR</span> <span class="o">=</span> <span class="n">BASE_DIR</span> <span class="o">/</span> <span class="s2">"results"</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="n">FIG_DIR</span> <span class="o">=</span> <span class="n">RESULTS_DIR</span> <span class="o">/</span> <span class="s2">"figures"</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
@@ -101,11 +104,13 @@
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="p">(</span><span class="s2">"E5"</span><span class="p">,</span> <span class="s2">"ema"</span><span class="p">,</span> <span class="s2">"ema_results.txt"</span><span class="p">),</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="p">]</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="c1"># Random seed for paired scatter jitter</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="n">RANDOM_SEED</span> <span class="o">=</span> <span class="mi">42</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="c1"># Significance thresholds</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="n">ALPHA</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="n">CAMERA_EXPERIMENTS</span> <span class="o">=</span> <span class="p">[(</span><span class="sa">f</span><span class="s2">"P</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"external"</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="k">else</span> <span class="s2">"wrist"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"P</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_results.txt"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)]</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="c1"># Random seed for paired scatter jitter</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="n">RANDOM_SEED</span> <span class="o">=</span> <span class="mi">42</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="c1"># Significance thresholds</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="n">ALPHA</span> <span class="o">=</span> <span class="mf">0.05</span>
 </span></pre></div>
 
 
@@ -113,7 +118,8 @@
                 <section id="BASE_DIR">
                     <div class="attr variable">
             <span class="name">BASE_DIR</span>        =
-<span class="default_value">WindowsPath(&#39;D:/MMA3001_Project&#39;)</span>
+<input id="BASE_DIR-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="BASE_DIR-view-value"></label><span class="default_value">WindowsPath(&#39;E:/3117566/Codex/2026-09-14/e-31175-4078-ece4078-2026-private/work/mma3001_final_audit_20261014&#39;)</span>
 
         
     </div>
@@ -125,7 +131,8 @@
                 <section id="RESULTS_DIR">
                     <div class="attr variable">
             <span class="name">RESULTS_DIR</span>        =
-<span class="default_value">WindowsPath(&#39;D:/MMA3001_Project/results&#39;)</span>
+<input id="RESULTS_DIR-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="RESULTS_DIR-view-value"></label><span class="default_value">WindowsPath(&#39;E:/3117566/Codex/2026-09-14/e-31175-4078-ece4078-2026-private/work/mma3001_final_audit_20261014/results&#39;)</span>
 
         
     </div>
@@ -137,7 +144,8 @@
                 <section id="FIG_DIR">
                     <div class="attr variable">
             <span class="name">FIG_DIR</span>        =
-<span class="default_value">WindowsPath(&#39;D:/MMA3001_Project/results/figures&#39;)</span>
+<input id="FIG_DIR-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="FIG_DIR-view-value"></label><span class="default_value">WindowsPath(&#39;E:/3117566/Codex/2026-09-14/e-31175-4078-ece4078-2026-private/work/mma3001_final_audit_20261014/results/figures&#39;)</span>
 
         
     </div>
@@ -179,6 +187,19 @@
         
     </div>
     <a class="headerlink" href="#EXPERIMENTS"></a>
+    
+    
+
+                </section>
+                <section id="CAMERA_EXPERIMENTS">
+                    <div class="attr variable">
+            <span class="name">CAMERA_EXPERIMENTS</span>        =
+<input id="CAMERA_EXPERIMENTS-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="CAMERA_EXPERIMENTS-view-value"></label><span class="default_value">[(&#39;P1&#39;, &#39;external&#39;, &#39;P1_results.txt&#39;), (&#39;P2&#39;, &#39;external&#39;, &#39;P2_results.txt&#39;), (&#39;P3&#39;, &#39;external&#39;, &#39;P3_results.txt&#39;), (&#39;P4&#39;, &#39;external&#39;, &#39;P4_results.txt&#39;), (&#39;P5&#39;, &#39;wrist&#39;, &#39;P5_results.txt&#39;), (&#39;P6&#39;, &#39;wrist&#39;, &#39;P6_results.txt&#39;), (&#39;P7&#39;, &#39;wrist&#39;, &#39;P7_results.txt&#39;), (&#39;P8&#39;, &#39;wrist&#39;, &#39;P8_results.txt&#39;)]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CAMERA_EXPERIMENTS"></a>
     
     
 
