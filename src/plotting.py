@@ -8,7 +8,7 @@ from matplotlib.colors import ListedColormap
 plt.rcParams.update({"font.family": "Times New Roman", "font.size": 13})
 
 
-def _success(df, path, title):
+def _success(df, path, title, tick_labels=None, xlabel=None):
     """Plot success percentages with asymmetric Wilson confidence intervals."""
     fig, ax = plt.subplots(figsize=(9, 4.8))
     rate = df.success_rate_pct.to_numpy()
@@ -19,6 +19,10 @@ def _success(df, path, title):
     for i, v in enumerate(rate):
         ax.text(i, float(df.wilson_ci_upper_pct.iloc[i]) + 1.5, f"{v:.2f}", ha="center", fontsize=11)
     ax.set(ylim=(0, 105), ylabel="Success rate (%)", title=title)
+    if tick_labels is not None:
+        ax.set_xticks(range(len(df)), tick_labels)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
     ax.legend(loc="lower left")
     fig.tight_layout()
     fig.savefig(path, dpi=240)
@@ -42,6 +46,10 @@ def make_figures(e_df, p_df, results, directory):
     _success(e_df, directory / "ablation_success_bar.png", "Ablation success with Wilson 95% confidence intervals")
     cameras = pd.concat([e_df.iloc[[0]], p_df], ignore_index=True)
     _success(cameras, directory / "fig_4_7a_success_rate.png", "Camera translations: 30 episodes per condition")
+    _success(cameras, directory / "primary_camera_axes.png", "Primary camera translations with Wilson 95% intervals",
+             ['E0\nBaseline', 'P1\nz +0.15', 'P2\nz -0.15', 'P3\nx -0.20', 'P4\nx +0.20',
+              'P5\nx +0.03', 'P6\nx -0.03', 'P7\ny +0.03', 'P8\nz +0.03'],
+             'Signed displacement (m): P1-P4 external, P5-P8 wrist local axes')
     fig, ax = plt.subplots(figsize=(8.5, 4.8))
     ax.bar(e_df.key, e_df.eval_ep_s, color="#4C72B0")
     for i, v in enumerate(e_df.eval_ep_s):
@@ -91,6 +99,7 @@ def plot_wrist_magnitudes(p_df, q_df, path):
         ax.bar(x+delta,rate,.34,yerr=err,capsize=3,label=label,color=color)
         for i,v in enumerate(rate):ax.text(i+delta,float(df.wilson_ci_upper_pct.iloc[i])+1.5,f'{v:.1f}',ha='center',fontsize=10)
     ax.axhline(100*28/30,linestyle='--',color='gray',label='E0 baseline')
-    ax.set_xticks(x,['Forward','Backward','Lateral','Vertical'])
+    ax.set_xticks(x,['x +\nForward','x -\nBackward','y +\nLateral','z +\nVertical'])
     ax.set(ylim=(0,110),ylabel='Success rate (%)',title='Wrist translation by direction and magnitude')
-    ax.legend(loc='lower left',fontsize=10);fig.tight_layout();fig.savefig(path,dpi=240);plt.close(fig)
+    ax.legend(loc='lower left',fontsize=10);fig.tight_layout();fig.savefig(path,dpi=240)
+    fig.savefig(path.with_name('wrist_axes_magnitudes.png'),dpi=240);plt.close(fig)

@@ -1,0 +1,56 @@
+# Camera conditions and source provenance
+
+Success totals were checked again against every text file in the experiment
+folder. There are 24 text files but 18 distinct log contents: six early logs
+duplicate the six ablation logs byte for byte. The ZIP contains 14 copies of
+existing primary logs. None supplies additional independent repetitions.
+See `results/raw_log_audit.json` for relative filenames and SHA256 hashes.
+
+The mapping below follows the experiment record and operator confirmations.
+The logs independently verify outcomes, but do not preserve edited camera XML.
+Exact XML variants are still needed to independently reproduce geometry.
+
+| ID | Camera and signed translation (m) | Direction label | Success | Original local filename |
+|---|---|---|---|---|
+| P1 | External z +0.15 | up | 28/30 | P1_ext_z_up_results.txt |
+| P2 | External z -0.15 | down | 28/30 | P2_ext_z_down_results.txt |
+| P3 | External x -0.20 | negative x | 28/30 | P3_ext_x_left_results.txt |
+| P4 | External x +0.20 | positive x | 28/30 | P4_ext_x_right_results.txt |
+| P5 | Wrist local x +0.03 | forward | 27/30 | P5_wrist_results.txt |
+| P6 | Wrist local x -0.03 | backward | 16/30 | P6_wrist_results.txt |
+| P7 | Wrist local y +0.03 | lateral | 28/30 | P7_wrist_results.txt |
+| P8 | Wrist local z +0.03 | vertical | 25/30 | P8_wrist_results.txt |
+| Q1 | Wrist local x +0.05 | forward | 24/30 | P5_x10.txt |
+| Q2 | Wrist local x -0.05 | backward | 20/30 | P6_boundary_x0(1).txt |
+| Q3 | Wrist local y +0.05 | lateral | 25/30 | P7_y05(1).txt |
+| Q4 | Wrist local z +0.05 | vertical | 13/30 | P8_z05.txt |
+
+## Displacement versus absolute position
+
+Reported nominal positions: external `(0.50, 0, 1.35)` m and wrist local
+`(0.05, 0, 0)` m. A signed displacement is added to the nominal position:
+
+- Wrist x +0.05: final `(0.10, 0, 0)` m, Q1, **24/30**.
+- Wrist x -0.05: final `(0, 0, 0)` m, Q2, **20/30**.
+- Wrist y +0.05: final `(0.05, 0.05, 0)` m, Q3, **25/30**.
+- Wrist z +0.05: final `(0.05, 0, 0.05)` m, Q4, **13/30**.
+
+These final coordinates are derived from the reported nominal values, not
+independently read from the logs. The complete machine-readable mapping is
+`results/camera_condition_registry.csv`. Do not identify the condition by its
+success rate, interchange y/lateral and z/vertical, or call final x=0.05 an
+x displacement of +0.05. Local z does not necessarily remain world-up while
+the wrist moves. The coordinate-frame transform requires the original XML.
+
+## Interpretation
+
+Increasing magnitude from 0.03 to 0.05 m is a **66.7% increase**, not doubling.
+Backward success rises from 16/30 to 20/30; z success falls from 25/30 to 13/30.
+Observed rates therefore do not show a uniformly monotone magnitude effect.
+The report does not claim a direct significance test between magnitudes.
+P6 and Q4 remain significant against E0 under Holm correction across all twelve
+camera comparisons (0.02014160 and 0.00329590 respectively).
+
+`python -m src.analysis` regenerates axis-labelled figures
+`results/figures/primary_camera_axes.png` and
+`results/figures/wrist_axes_magnitudes.png`, in addition to existing outputs.
