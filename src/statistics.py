@@ -28,8 +28,9 @@ def wilson_ci(k: int, n: int, alpha: float = 0.05) -> Tuple[float, float]:
 def cohens_d(group1: List[bool], group2: List[bool]) -> float:
     """Cohen's d with pooled standard deviation.
 
-    Returns NaN if either group has zero variance, since d is not applicable
-    when the pooled standard deviation is zero.
+    Legacy independent-group helper, unused by the paired analysis. This
+    project conservatively returns NaN if either variance is zero; that is a
+    reporting convention, not a general mathematical restriction on Cohen's d.
     """
     a = np.asarray(group1, dtype=float)
     b = np.asarray(group2, dtype=float)

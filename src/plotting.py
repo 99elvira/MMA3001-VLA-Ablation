@@ -17,7 +17,7 @@ def _success(df, path, title):
     ax.bar(df.key, rate, yerr=err, capsize=4, color=colors)
     ax.axhline(rate[0], color="gray", linestyle="--", label="E0 baseline")
     for i, v in enumerate(rate):
-        ax.text(i, v + 1.5, f"{v:.2f}", ha="center", fontsize=11)
+        ax.text(i, float(df.wilson_ci_upper_pct.iloc[i]) + 1.5, f"{v:.2f}", ha="center", fontsize=11)
     ax.set(ylim=(0, 105), ylabel="Success rate (%)", title=title)
     ax.legend(loc="lower left")
     fig.tight_layout()
@@ -89,7 +89,7 @@ def plot_wrist_magnitudes(p_df, q_df, path):
         rate=df.success_rate_pct.to_numpy()
         err=np.vstack([rate-df.wilson_ci_lower_pct,df.wilson_ci_upper_pct-rate])
         ax.bar(x+delta,rate,.34,yerr=err,capsize=3,label=label,color=color)
-        for i,v in enumerate(rate):ax.text(i+delta,v+1,f'{v:.1f}',ha='center',fontsize=10)
+        for i,v in enumerate(rate):ax.text(i+delta,float(df.wilson_ci_upper_pct.iloc[i])+1.5,f'{v:.1f}',ha='center',fontsize=10)
     ax.axhline(100*28/30,linestyle='--',color='gray',label='E0 baseline')
     ax.set_xticks(x,['Forward','Backward','Lateral','Vertical'])
     ax.set(ylim=(0,110),ylabel='Success rate (%)',title='Wrist translation by direction and magnitude')
