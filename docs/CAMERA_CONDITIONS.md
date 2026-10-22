@@ -1,12 +1,22 @@
 # Camera conditions and source provenance
 
-Success totals were checked again against every text file in the experiment
-folder. There are 24 text files but 18 distinct log contents: six early logs
+Before the later integration-step study, success totals were checked against
+all 24 text files then present, with 18 distinct log contents: six early logs
 duplicate the six ablation logs byte for byte. The ZIP contains 14 copies of
 existing primary logs. None supplies additional independent repetitions.
 See `results/raw_log_audit.json` for relative filenames and SHA256 hashes.
 
+The later `积分步数` folder adds two full logs and two corresponding aggregate
+extracts, representing **two new runs**, not four repetitions. The current
+local folder has 28 text files and 20 distinct experimental conditions.
+See [the separate step-study record](INTEGRATION_STEPS.md) and
+`results/integration_manifest.json`. Camera definitions and totals below are
+unchanged; N=20/40 are not additional camera perturbations.
+
 The mapping below follows the experiment record and operator confirmations.
+The later [operator execution record](OPERATOR_EXECUTION_RECORD.md) supplies
+camera edit commands consistent with these coordinates. It is not a complete
+XML snapshot or proof of a successful regex replacement in a historical run.
 The logs independently verify outcomes, but do not preserve edited camera XML.
 Exact XML variants are still needed to independently reproduce geometry.
 

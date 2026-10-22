@@ -74,6 +74,9 @@ def main(argv=None):
                for i, s in enumerate(res.task_successes[t])]
     pd.DataFrame(records).to_csv(output / "paired_outcomes.csv", index=False)
     make_figures(e_df, p_df, {**e, **p}, output / "figures")
+    # Keep the later solver-step family separate from the camera comparisons.
+    from src.integration import main as integration_main
+    integration_main(["--results-dir", str(args.results_dir), "--output-dir", str(output)])
     from src.plotting import plot_wrist_magnitudes
     plot_wrist_magnitudes(p_df, q_df, output / 'figures/wrist_magnitude_comparison.png')
     report = "Wilson 95% intervals; exact paired McNemar; separate Holm families (5 and 8).\n"

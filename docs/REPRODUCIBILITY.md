@@ -24,14 +24,19 @@ The logs record:
   `resize_imgs_with_padding=(512,512)`, tokenizer maximum length 48;
 - configured 520 steps, with observed rollout caps of 280 steps.
 
-E4 is labelled full-chunk execution in the experiment record, but its printed
-config still says `n_action_steps=1`; the separate runtime patch must show how
-the flag changes execution. The repository does not currently include that
-patched evaluator, and the log alone cannot prove its exact implementation.
+E4's printed config says `n_action_steps=1`. The later supplied
+[operator execution record](OPERATOR_EXECUTION_RECORD.md) contains the core
+patch setting `policy.config.n_action_steps = policy.config.chunk_size`.
+This supports the intended full-chunk mode and explains the earlier printed
+default, but the complete installed evaluator, upstream revision and exact
+call order are not archived. The historical log alone cannot prove the code
+revision that executed. The record also supplies step overrides, input masks,
+EMA initialization and camera edit commands; these snippets were not replayed.
 
 Before claiming full simulator reproducibility, archive or identify:
 
-1. The original evaluator/ablation patch and its upstream LeRobot revision.
+1. The complete original evaluator/ablation revision and upstream LeRobot commit
+   (core excerpts are now archived, but do not replace the complete file/diff).
 2. Policy checkpoint source, revision, configuration and SHA256 manifest.
 3. Runtime dependency versions and the GPU software environment.
 4. Exact external/wrist XML variants and nominal-pose backups.
@@ -43,6 +48,12 @@ for these missing components. It writes new logs to a separate run directory,
 not over the archived evidence.
 
 ## Additional local records
+
+The later N=20/40 complete logs and aggregate extracts are archived under
+`results/integration/`. Runtime override messages follow earlier default
+configuration printouts. Their task/timing analysis is reproducible, but
+fixed-input action differences, initial-noise tensors and isolated model
+latencies are absent. See [integration-step evidence](INTEGRATION_STEPS.md).
 
 The experimenter confirmed that later completed files in the `0.05` folder
 are the ±0.05 m wrist runs. They are archived as Q1-Q4 without changing the

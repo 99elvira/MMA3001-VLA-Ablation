@@ -20,4 +20,6 @@ jobs:
             docs/api
             results/*summary.csv
             results/paired_outcomes.csv
+            results/integration_outcomes.csv
+            results/integration_manifest.json
             results/figures
