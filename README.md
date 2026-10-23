@@ -154,6 +154,11 @@ Generate an HTML test report:
 ```
 pytest tests/ --html=docs/test_report.html
 ```
+## Solver Step Sensitivity & Raw Action Outputs
+To verify the sensitivity of the action generation to the Euler integration step size (N), we provided a fixed-input test script and the corresponding raw outputs:
+- **Test Script**: `scripts/test_solver_convergence.py` (sets `torch.manual_seed(42)` to ensure identical initial noise).
+- **Raw Outputs**: `results/solver_steps_raw/action_N10.npy`, `action_N20.npy`, and `action_N40.npy`.
+These raw arrays (shape: `[50, 7]` each) allow exact reproduction of the MSE and Max Diff calculations reported in the paper.
 
 ## Documentation
 
@@ -168,6 +173,12 @@ Open `docs/index.html` in a browser to view.
 ## License
 
 MIT License. See `LICENSE`.
+
+## Model Provenance
+- Policy: `HuggingFaceVLA/smolvla_libero` (downloaded on 2026-09-15)
+- VLM Backbone: `HuggingFaceTB/SmolVLM2-500M-Instruct`
+- Local path: `D:\MMA3001_Project\models\smolvla_libero`
+- Weights are unmodified; no fine-tuning was performed.
 
 ## AI Use
 
