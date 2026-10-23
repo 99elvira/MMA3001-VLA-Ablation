@@ -1,5 +1,20 @@
 # Reproducibility status
 
+## Latest evidence update
+
+The complete operator-supplied evaluator has now been archived as
+`scripts/lerobot_eval_modified.py`, together with `environment_snapshot.txt`
+and upstream revisions in `requirements-evaluation-snapshot.txt`.
+Earlier statements below that the complete evaluator was unavailable describe
+the earlier evidence state. The supplied file has not been independently
+replayed with the historical checkpoint. Model-file hashes, immutable model
+revision and per-condition historical XML snapshots remain missing.
+The supplied environment snapshot and older CUDA description differ; neither
+is silently asserted to identify every past run. Portable analysis installation
+uses requirements.txt, not the GPU environment snapshot.
+New single-action arrays are exploratory evidence with unresolved controls;
+see SOLVER_ARRAY_AUDIT.md. They do not close the numerical-verification gap.
+
 ## Analysis evidence
 
 The supplied original logs support 30 outcomes for each condition and the

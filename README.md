@@ -1,198 +1,222 @@
-# MMA3001 - VLA Robustness Analysis
+# MMA3001 VLA robustness analysis
 
-Ablation study on SmolVLA + LIBERO for robotic grasping.
+Five inference ablations and eight camera translations of a pretrained SmolVLA
+policy on LIBERO-Object. No policy training is performed here.
+Four later completed 0.05 m wrist translations are included as supplementary
+Q1-Q4 data, confirmed by the experimenter; see `results/data_manifest.json`.
+Later N=20/40 integration-step runs supplement the reused N=10 E0 reference.
+See [step-study evidence and limits](docs/INTEGRATION_STEPS.md). They compare
+task success and end-to-end evaluation time, not numerical convergence.
 
-## Project Overview
+## Why these experiments belong together
 
-This repository contains the computational workflow for an MMA3001 project:
-**Robustness Analysis of a Vision-Language-Action Model for Robotic Grasping**.
+The motivating engineering concern is camera placement: changing the view can
+change grasping decisions even when the task and policy weights are unchanged.
+Camera sensitivity is the main question, not a conclusion assumed in advance.
 
-We evaluate a pre-trained SmolVLA model on the LIBERO-object benchmark
-under 6 input/mechanism configurations (E0-E5) and 8 camera-pose
-configurations (P1-P8), without any fine-tuning. The goal is to quantify
-the impact of input-modality masking, inference-mechanism changes, and
-camera-geometry perturbations.
+1. **Diagnose dependence (E1-E5).** Image/state masking asks which inputs the
+   policy depends on under an extreme fault. Chunk execution and smoothing
+   ask whether execution choices also change reliability. These tests do not
+   measure tolerance to mounting errors.
+2. **Test mounting sensitivity (P1-P8).** Keep both images and the baseline
+   execution settings, then translate one camera coordinate. This separates
+   camera-position effects from input removal and execution-policy changes.
+3. **Probe the wrist pattern (Q1-Q4).** Later 0.05 m runs examine whether the
+   directional pattern seen at 0.03 m persists. They do not establish a
+   continuous threshold or a uniformly monotone magnitude effect.
+4. **Assess computational cost (N=10/20/40).** With nominal cameras, compare
+   Euler update counts. This asks whether additional computation improves
+   task success; it does not test whether more steps repair camera failures.
 
-## Repository Structure
+The computational link is the conditioned vector field: images contribute to
+its conditioning, Euler updates generate an action chunk, and the execution
+policy determines when observations are refreshed. These are distinct places
+to intervene. Task-level validation and numerical convergence verification
+must not be conflated. See [the presentation and submission checklist](docs/SUBMISSION_CHECKLIST.md).
 
-```
-github_repo/
-├── src/          Core Python modules (parser, statistics, plotting,
-│                 camera-pose editors)
-├── tests/        Pytest test suite
-├── docs/         HTML documentation and pipeline diagram
-├── results/      Experiment outputs (raw logs, summary.csv, figures)
-├── scripts/      Batch scripts to reproduce experiments
-└── README.md
-```
+## What can be reproduced
 
-## Environment
+The complete **analysis of the archived logs** runs on a CPU: parsing, Wilson
+95% confidence intervals, exact paired McNemar tests, separate Holm correction
+for E1-E5 and P1-P8, figures, and tests. The simulator runs additionally require
+the original local policy checkpoint, complete versioned LeRobot evaluator and
+the exact camera XMLs. Core patch excerpts and camera edit commands are now
+archived in the [operator record](docs/OPERATOR_EXECUTION_RECORD.md). A complete
+supplied evaluator and environment snapshot have since been added, but the
+checkpoint identity and historical per-condition XML evidence remain incomplete.
+Setting `ABLATION_MODE` in an unmodified LeRobot installation does not implement
+the ablations. See [reproducibility status](docs/REPRODUCIBILITY.md).
 
-- OS: Windows 11
-- Python: 3.10 (Conda environment `vla_project`)
-- GPU: NVIDIA RTX 5060 Laptop (sm_120)
-- PyTorch: Nightly with CUDA 12.9
-- LeRobot, LIBERO, robosuite 1.4.0
+## Quick start
 
-See `requirements.txt` for Python dependencies.
+From the repository root, with Python 3.10 or newer:
 
-## Installation
-
-1. Create the Conda environment:
-
-   ```
-   conda env create -f environment.yml
-   conda activate vla_project
-   ```
-
-2. Install PyTorch Nightly for RTX 5060:
-
-   ```
-   pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu129
-   ```
-
-3. Install remaining dependencies:
-
-   ```
-   pip install -r requirements.txt
-   ```
-
-## Reproducing the Experiments
-
-Set the environment variables:
-
-```
-set HF_HUB_OFFLINE=1
-set TRANSFORMERS_OFFLINE=1
-set MUJOCO_GL=wgl
-set PYOPENGL_PLATFORM=wgl
-set PYTHONPATH=D:\MMA3001_Project\LIBERO
+```sh
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m src.analysis
+python -m pytest tests -v --html=docs/test_report.html --self-contained-html
+python -m pdoc src -o docs/api
 ```
 
-Run each ablation mode:
+Windows users can run `scripts\verify.bat` after installing dependencies.
+The same commands run in `.github/workflows/analysis.yml`. CI runs must finish
+successfully before claiming the remote workflow has been verified.
 
-```
-scripts\run_all_experiments.bat
-```
+## Repository and outputs
 
-Regenerate analysis outputs:
+| Location | Purpose |
+|---|---|
+| `src/parser.py` | Parse and validate raw outcome blocks; align task/episode identities |
+| `src/statistics.py` | Wilson intervals, exact McNemar and Holm adjustment |
+| `src/analysis.py` | Runnable analysis entry point using the shared modules |
+| `src/plotting.py` | Generate scientific figures from parsed data |
+| `src/modify_wrist_camera.py` | Explicit-path XML editor with backup and dry-run default |
+| `tests/` | Unit and original-log regression tests |
+| `docs/api/`, `docs/test_report.html` | Generated API documentation and test evidence |
+| `results/*_results.txt` | Original experiment logs, retained unchanged |
+| `results/summary.csv`, `camera_summary.csv` | Recomputed family statistics |
+| `results/paired_outcomes.csv` | Each Boolean outcome indexed by condition, task and episode |
+| `results/supplementary_summary.csv`, `all_camera_summary.csv` | Later 0.05 m results and a conservative 12-comparison sensitivity check |
+| `results/camera_condition_registry.csv`, `raw_log_audit.json` | Signed offsets, derived positions, original filenames, hashes and duplicate-log checks |
+| `results/figures/` | Charts generated by `python -m src.analysis` |
+| `src/integration.py`, `results/integration/` | Validated step-study analysis and unchanged original logs/extracts |
+| `results/integration_summary.csv`, `integration_outcomes.csv`, `integration_manifest.json` | Step results, paired outcomes and file-hash provenance |
 
-```
-scripts\regenerate_analysis.bat
-```
+`no_chunk_results.txt` is an unused historical log and is excluded from the
+predeclared E0-E5 family. Legacy independent-test helpers in `statistics.py`
+are not used to infer differences between the matched episode conditions.
 
-## Results Summary (E0-E5)
+## Results from the original logs
 
-| Experiment | Success Rate | Wilson 95% CI  | Absolute Drop | Cohen's d | Holm p   | Sig. |
-|------------|--------------|----------------|---------------|-----------|----------|------|
-| E0         | 93.33%       | [78.68, 98.15] | -             | -         | -        | -    |
-| E1         | 0.00%        | [0.00, 11.35]  | -93.33 pp     | NA        | 4.19e-14 | ***  |
-| E2         | 0.00%        | [0.00, 11.35]  | -93.33 pp     | NA        | 4.19e-14 | ***  |
-| E3         | 0.00%        | [0.00, 11.35]  | -93.33 pp     | NA        | 4.19e-14 | ***  |
-| E4         | 56.67%       | [39.20, 72.62] | -36.67 pp     | -0.919    | 4.26e-03 | **   |
-| E5         | 56.67%       | [39.20, 72.62] | -36.67 pp     | -0.919    | 4.26e-03 | **   |
+| ID | Change | Success | Exact McNemar p | Holm p |
+|---|---|---|---|---|
+| E0 | One-action feedback baseline | 28/30 | — | — |
+| E1 | External image zero-mask | 0/30 | 7.45058e-9 | 3.72529e-8 |
+| E2 | Wrist image zero-mask | 0/30 | 7.45058e-9 | 3.72529e-8 |
+| E3 | Robot state zero-mask | 0/30 | 7.45058e-9 | 3.72529e-8 |
+| E4 | Reported full 50-action execution | 17/30 | 0.00341797 | 0.00683594 |
+| E5 | EMA with alpha 0.3 | 17/30 | 0.00738525 | 0.00738525 |
 
-## Camera Perturbation Ablation (P1-P8)
+| ID | Translation relative to nominal pose | Success | Holm p |
+|---|---|---|---|
+| P1 | External world z +0.15 m | 28/30 | 1 |
+| P2 | External world z -0.15 m | 28/30 | 1 |
+| P3 | External world x -0.20 m | 28/30 | 1 |
+| P4 | External world x +0.20 m | 28/30 | 1 |
+| P5 | Wrist local x +0.03 m | 27/30 | 1 |
+| P6 | Wrist local x -0.03 m | 16/30 | 0.01464844 |
+| P7 | Wrist local y +0.03 m | 28/30 | 1 |
+| P8 | Wrist local z +0.03 m | 25/30 | 1 |
 
-Following the input-masking and mechanism ablations (E0-E5), we added a
-second experiment class: geometric perturbation of the two camera streams.
+Nominal poses reported by the experimenter: external (0.50, 0, 1.35) m;
+wrist local (0.05, 0, 0) m. Rotations were held fixed. The differing external
+and wrist translations are discrete probes, not matched pixel/angle changes.
+Signed offsets are translations **relative to nominal position**, not the
+absolute coordinates entered in XML. Wrist x +0.05 m therefore gives final
+position (0.10, 0, 0) m, whereas wrist z +0.05 m gives (0.05, 0, 0.05) m.
+Forward/backward/lateral/vertical are experimental labels for wrist local
+x+/x-/y+/z+; local axes move with the mounting body and need not coincide with
+world directions. See [the coordinate and source registry](docs/CAMERA_CONDITIONS.md).
 
-### Design
+### Later completed 0.05 m wrist translations
 
-- External agentview camera: vertical +/- 0.15 m (P1, P2), horizontal +/- 0.20 m (P3, P4).
-- Wrist camera `robot0_eye_in_hand`: 0.03 m along each local axis
-  (P5 forward, P6 backward, P7 lateral, P8 vertical).
-- Each configuration: 10 LIBERO-object tasks x 3 episodes = 30 episodes.
+| ID | Local translation | Success | Holm p across all 12 camera comparisons |
+|---|---|---|---|
+| Q1 | x +0.05 m, forward | 24/30 | 1 |
+| Q2 | x -0.05 m, backward | 20/30 | 0.078125 |
+| Q3 | y +0.05 m, lateral | 25/30 | 1 |
+| Q4 | z +0.05 m, vertical | 13/30 | 0.00329590 |
 
-### Results (Primary: 0.03 m offset)
+The original 8-comparison P6 result is p=0.01464844; considering all 12 camera
+contrasts gives p=0.02014160, still significant. Q2 is significant within the
+separate four-run exploratory family but not after the broader correction.
+Q4 remains significant in both. The measured outcomes are not uniformly
+monotone with displacement magnitude: backward 0.05 m succeeds more often
+than backward 0.03 m. A continuous tolerance or threshold is not established.
+The original early crash therefore does not imply that all 0.05 m runs fail.
 
-| Experiment | Camera   | Perturbation         | Success Rate | Delta vs E0   |
-|------------|----------|----------------------|--------------|---------------|
-| E0         | -        | baseline             | 93.33%       | 0 pp          |
-| P1         | external | z +0.15 m            | 93.33%       | 0 pp          |
-| P2         | external | z -0.15 m            | 93.33%       | 0 pp          |
-| P3         | external | x -0.20 m            | 93.33%       | 0 pp          |
-| P4         | external | x +0.20 m            | 93.33%       | 0 pp          |
-| P5         | wrist    | x +0.03 m (forward)  | 90.00%       | -3.33 pp      |
-| P6         | wrist    | x -0.03 m (backward) | **53.33%**   | **-40.00 pp** |
-| P7         | wrist    | y +0.03 m (lateral)  | 93.33%       | 0 pp          |
-| P8         | wrist    | z +0.03 m (vertical) | 83.33%       | -10.00 pp     |
+## Interpretation and limitations
 
-### Supplementary Boundary Test (0.05 m offset)
+- External outcomes are unchanged at four sampled positions. This does not
+  establish a continuous tolerance radius or irrelevance of that camera.
+- A backward wrist shift reduces success by **40 percentage points**, from
+  93.33% to 53.33%; the direction-specific comparison survives Holm correction.
+- Other **primary 0.03 m** wrist shifts show no statistically detected difference
+  after correction. The later **z +0.05 m** condition Q4 is significant.
+  Non-significance is not equivalence, especially with only 30 episodes.
+- E4 averages 7.97 seconds/episode versus E0's 111.99, but succeeds less often.
+  These are end-to-end timings, not isolated inference latency or solver cost.
+- The pairing key is task ID plus episode index. Fixed seed/init-state settings
+  support the design, but initial-state identity is not independently logged.
+  Pooled inference assumes independent episode pairs within this fixed sample;
+  task clustering and single-seed generalisation remain limitations.
+- Logs show configured `episode_length=520`, while rollout messages use a
+  maximum of **280 steps**. They must not be described as uniformly 520-step runs.
+- This is simulation-only and does not establish hardware safety or robustness.
 
-To probe the physical limits of the camera mounting, a supplementary test with a 0.05 m offset was conducted for the wrist camera. Note that at 0.05 m backward (P6, `x=0.00`), the camera reaches the gripper center, causing severe occlusion or rendering anomalies.
+## Computational connection and ownership
 
-| Experiment | Camera   | Perturbation (0.05 m) | Success Rate | Delta vs E0 |
-|------------|----------|-----------------------|--------------|-------------|
-| P5_ext     | wrist    | x +0.05 m (forward)   | 80.00%       | -13.33 pp   |
-| P6_ext     | wrist    | x -0.05 m (backward)  | 66.67%       | -26.66 pp   |
-| P7_ext     | wrist    | y +0.05 m (lateral)   | 83.33%       | -10.00 pp   |
-| P8_ext     | wrist    | z +0.05 m (vertical)  | **43.33%**   | **-50.00 pp** |
+The pretrained flow-matching expert supplies a conditioned vector field; ten
+Forward Euler updates produce a 50-action sequence. Its integration variable
+is an artificial model coordinate, not physical arm time. The original logs
+record the seven-dimensional output and eight-dimensional state. Action
+normalisation/scaling is separate from robot displacement units.
+The final output chunk has shape 50x7: seven components per action, not a single
+seven-dimensional physical robot state. The logged `max_action_dim=32` allows
+internal padding, so the internal integration sample must not be called a
+seven-dimensional robot state. Upstream LeRobot removes unused dimensions
+after sampling. Ten integration updates and fifty generated actions are
+distinct counts. E0 executes one generated action before refreshing
+observations; the reported E4 mode executes the full chunk.
 
-### Key Findings
+Student work concerns experiment design, execution and interpretation.
+The repository implements log parsing, statistical validation and plotting.
+Policy weights and the LIBERO benchmark are reused external components.
+The later N=10/20/40 study compares task outcomes and end-to-end time. It is
+not a fixed-input Euler convergence verification or model-only profiling,
+and no new policy training is claimed. The current analysis suite has 37
+passing tests; the HTML report and API documentation include the extension.
 
-- External-camera pose is irrelevant within the tested range: identical success rate, identical failing-episode set, identical peak GPU memory.
-- Wrist-camera pose is directionally sensitive. At 0.03 m, a backward shift along the tool axis significantly degrades success (McNemar p = 0.00183, Holm p = 0.01465). 
-- Boundary test (0.05 m) reveals that extreme vertical shifts (P8_ext) cause the most severe performance drop (-50 pp), likely due to the loss of crucial local grasping geometry, whereas backward shifts approach full occlusion (P6_ext).
-- Every wrist perturbation rearranges the failing-episode set, even when aggregate success is not statistically distinguishable from baseline. Masking and perturbing probe different failure modes.
+## AI disclosure
 
-## Testing
-
-Run the test suite:
-
-```
-pytest tests/ -v --tb=short
-```
-
-Generate an HTML test report:
-
-```
-pytest tests/ --html=docs/test_report.html
-```
-## Solver Step Sensitivity Analysis
-
-To evaluate the impact of integration steps on action execution, we compared the policy under N=10, 20, and 40. We do not treat N=10 as the ground truth; rather, it serves as the pre-trained reference baseline.
-
-| Integration Steps (N) | Success Rate | Wilson 95% CI | Wall-clock Time (s/ep) | Relative Time vs N=10 | exact McNemar p |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **10 (default)** | **93.33% (28/30)** | [78.68, 98.15] | **111.99 s** | 1.00× (baseline) | — |
-| **20** | 96.67% (29/30) | [83.33, 99.40] | 158.28 s | 1.41× | 1.00 |
-| **40** | 93.33% (28/30) | [78.68, 98.15] | 315.17 s | 2.81× | 1.00 |
-
-**Key Findings**:
-- Increasing N changed the output action chunks (MSE = 0.00156 for N=20, MSE = 0.00363 for N=40 relative to N=10).
-- However, this divergence did not yield a statistically significant improvement in success rate (McNemar p=1.00).
-- Wall-clock time increased substantially, nearly tripling at N=40.
-- **Conclusion**: In the tested settings, N=10 achieves the lowest inference time and provides no statistically detectable success-rate benefit when increased. It serves as the Pareto-optimal engineering trade-off for this fixed pre-trained model.
-
-### Raw Action Outputs
-
-To verify the sensitivity of the action generation to the Euler integration step size, we provided a fixed-input test script and the corresponding raw outputs:
-- **Test Script**: `scripts/test_solver_convergence.py` (sets `torch.manual_seed(42)` to ensure identical initial noise).
-- **Raw Outputs**: `results/solver_steps_raw/action_N10.npy`, `action_N20.npy`, and `action_N40.npy`.
-These raw arrays (shape: `[50, 7]` each) allow exact reproduction of the MSE and Max Diff calculations reported in the paper.
-## Documentation
-
-Generate HTML documentation with pdoc:
-
-```
-pdoc src/ -o docs/
-```
-
-Open `docs/index.html` in a browser to view.
+Claude and OpenAI Codex assisted debugging, statistical review, documentation
+and submission checks. Codex's October review substantially revised the analysis
+entry point, pairing validation, tests, README and document wording. Suggestions
+were checked against raw logs and executable tests; earlier unpaired tests and
+continuous-tolerance claims were removed from the active analysis. These test
+results validate analysis software, not the simulator or model checkpoint.
+The student remains responsible for verifying, understanding and defending
+the submitted work. No unmeasured percentage of AI contribution is asserted.
+OpenAI image generation also assisted presentation illustrations and chart
+restyling. Raw logs, rather than generated graphics, are the numerical authority.
 
 ## License
 
-MIT License. See `LICENSE`.
+Project analysis code: MIT, see `LICENSE`. External checkpoints, benchmark
+assets and libraries retain their own licences. Do not distribute model files
+without checking their licence and provenance.
 
-## Model Provenance
-- Policy: `HuggingFaceVLA/smolvla_libero` (downloaded on 2026-09-15)
-- VLM Backbone: `HuggingFaceTB/SmolVLM2-500M-Instruct`
-- Local path: `D:\MMA3001_Project\models\smolvla_libero`
-- Weights are unmodified; no fine-tuning was performed.
+## Additional evidence archived on 23 October
 
-## AI Use
+The complete supplied evaluator is `scripts/lerobot_eval_modified.py`.
+`environment_snapshot.txt` and `requirements-evaluation-snapshot.txt` record
+supplied runtime packages and upstream revisions. These historical records
+are separate from the portable CPU analysis dependencies in requirements.txt.
+The historical CUDA 12.9/nightly description differs from the supplied torch
+2.7.1+cu128 snapshot; per-run runtime identity is not independently established.
+Model source information is in `docs/model_provenance.md`; the immutable
+checkpoint revision and weight-file hashes remain unavailable.
 
-Claude (Anthropic) was used to assist with code debugging, statistical
-method verification, and documentation structuring. All results were
-verified locally with scipy and reviewed by the student.
+The exploratory solver script and arrays are retained unchanged. Each array
+has shape **(1, 7)**, not (50, 7). Recomputed MSE against N=10 is 0.0015628282
+at N=20 and 0.0036283776 at N=40; maximum absolute differences are 0.08264172
+and 0.12438238. These describe saved single-action arrays only. The script
+uses synthetic zero images/state and select_action without resetting policy
+state between conditions. Queue state, actual sampler calls and initial
+noise tensors were not archived. This check therefore does not establish a
+controlled full-chunk comparison, convergence or the cause of rollout failures.
+No rerun is claimed. See `docs/SOLVER_ARRAY_AUDIT.md`.
+
