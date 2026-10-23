@@ -24,6 +24,12 @@ XML snapshot or proof of a successful regex replacement in a historical run.
 The logs independently verify outcomes, but do not preserve edited camera XML.
 Exact XML variants are still needed to independently reproduce geometry.
 
+Restored nominal XML files were subsequently supplied and are archived in
+[the camera evidence folder](../evidence/camera_xml/README.md). The operator
+confirmed that cameras were reset after the experiments. Both Panda files,
+including the one named `perturbed_P6`, contain the same nominal configuration.
+They confirm the supplied baseline positions but not historical per-run poses.
+
 | ID | Camera and signed translation (m) | Direction label | Success | Original local filename |
 |---|---|---|---|---|
 | P1 | External z +0.15 | up | 28/30 | P1_ext_z_up_results.txt |

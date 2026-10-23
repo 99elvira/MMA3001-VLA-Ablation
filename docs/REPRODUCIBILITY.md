@@ -42,6 +42,13 @@ Before claiming full simulator reproducibility, archive or identify:
 4. Exact external/wrist XML variants and nominal-pose backups.
 5. Per-condition initial-state identifiers, commanded actions and step timing.
 
+Update on 23 October 2026: restored nominal external and wrist XML snapshots
+are now [archived with hashes](../evidence/camera_xml/README.md). The operator
+confirmed restoration after experiments; the file named `perturbed_P6` is
+byte-identical to the nominal Panda XML. Historical perturbed snapshots remain
+unavailable. This evidence does not supply checkpoint files, the evaluator,
+runtime versions or fixed-input numerical verification results.
+
 The existing `run_all_experiments.bat` is a historical launcher. It now checks
 for explicit runtime paths and patch acknowledgement; it is not a replacement
 for these missing components. It writes new logs to a separate run directory,
