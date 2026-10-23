@@ -7,8 +7,12 @@ existing primary logs. None supplies additional independent repetitions.
 See `results/raw_log_audit.json` for relative filenames and SHA256 hashes.
 
 The later `积分步数` folder adds two full logs and two corresponding aggregate
-extracts, representing **two new runs**, not four repetitions. The current
-local folder has 28 text files and 20 distinct experimental conditions.
+extracts, representing **two new runs**, not four repetitions. The 28-file
+count described that earlier snapshot. The subsequent two-folder audit found
+42 text files in `实验数据` and 18 in `实验数据(1)`: all 60 match archived
+repository contents byte for byte. There are 22 distinct file contents but
+only 20 experimental conditions, because two contents are aggregate extracts.
+Three ZIP copies each contain 14 existing logs; they add no repetitions.
 See [the separate step-study record](INTEGRATION_STEPS.md) and
 `results/integration_manifest.json`. Camera definitions and totals below are
 unchanged; N=20/40 are not additional camera perturbations.

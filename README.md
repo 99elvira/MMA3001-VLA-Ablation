@@ -8,6 +8,32 @@ Later N=20/40 integration-step runs supplement the reused N=10 E0 reference.
 See [step-study evidence and limits](docs/INTEGRATION_STEPS.md). They compare
 task success and end-to-end evaluation time, not numerical convergence.
 
+## Why these experiments belong together
+
+The motivating engineering concern is camera placement: changing the view can
+change grasping decisions even when the task and policy weights are unchanged.
+Camera sensitivity is the main question, not a conclusion assumed in advance.
+
+1. **Diagnose dependence (E1-E5).** Image/state masking asks which inputs the
+   policy depends on under an extreme fault. Chunk execution and smoothing
+   ask whether execution choices also change reliability. These tests do not
+   measure tolerance to mounting errors.
+2. **Test mounting sensitivity (P1-P8).** Keep both images and the baseline
+   execution settings, then translate one camera coordinate. This separates
+   camera-position effects from input removal and execution-policy changes.
+3. **Probe the wrist pattern (Q1-Q4).** Later 0.05 m runs examine whether the
+   directional pattern seen at 0.03 m persists. They do not establish a
+   continuous threshold or a uniformly monotone magnitude effect.
+4. **Assess computational cost (N=10/20/40).** With nominal cameras, compare
+   Euler update counts. This asks whether additional computation improves
+   task success; it does not test whether more steps repair camera failures.
+
+The computational link is the conditioned vector field: images contribute to
+its conditioning, Euler updates generate an action chunk, and the execution
+policy determines when observations are refreshed. These are distinct places
+to intervene. Task-level validation and numerical convergence verification
+must not be conflated. See [the presentation and submission checklist](docs/SUBMISSION_CHECKLIST.md).
+
 ## What can be reproduced
 
 The complete **analysis of the archived logs** runs on a CPU: parsing, Wilson
@@ -163,6 +189,8 @@ continuous-tolerance claims were removed from the active analysis. These test
 results validate analysis software, not the simulator or model checkpoint.
 The student remains responsible for verifying, understanding and defending
 the submitted work. No unmeasured percentage of AI contribution is asserted.
+OpenAI image generation also assisted presentation illustrations and chart
+restyling. Raw logs, rather than generated graphics, are the numerical authority.
 
 ## License
 
