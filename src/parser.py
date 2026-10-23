@@ -149,6 +149,10 @@ def parse_result_file(path: Path, key: str, name: str) -> ExperimentResult:
             metrics = item.get("metrics", {})
             successes = metrics.get("successes")
             if task_id is not None and successes is not None:
+                if int(task_id) in task_successes:
+                    raise ValueError(f"Duplicate task ID: {task_id}")
+                if not successes or any(type(x) is not bool for x in successes):
+                    raise ValueError("Per-task successes must be nonempty Boolean lists")
                 task_successes[int(task_id)] = [bool(x) for x in successes]
 
     # --- Compute totals ---
@@ -158,9 +162,9 @@ def parse_result_file(path: Path, key: str, name: str) -> ExperimentResult:
         n_episodes = len(all_successes)
     elif overall:
         n_episodes = int(overall.get("n_episodes", 0))
-        pc = float(overall.get("pc_success", 0.0))
-        if pc > 1.0:
-            pc = pc / 100.0
+        pc = float(overall.get("pc_success", 0.0)) / 100.0
+        if not 0 <= pc <= 1 or n_episodes < 0:
+            raise ValueError("Invalid aggregate success metrics")
         success_count = int(round(pc * n_episodes)) if n_episodes else 0
     else:
         raise ValueError(f"Cannot parse results from {path}")
@@ -170,6 +174,11 @@ def parse_result_file(path: Path, key: str, name: str) -> ExperimentResult:
         print(f"[WARN] {key} n_episodes={n_episodes}, expected {N_EPISODES}")
 
     success_rate = success_count / n_episodes if n_episodes else float("nan")
+    if task_successes and overall:
+        if int(overall.get("n_episodes", n_episodes)) != n_episodes:
+            raise ValueError("Per-task episode count disagrees with aggregate count")
+        if abs(float(overall.get("pc_success", 100 * success_rate)) - 100 * success_rate) > 1e-6:
+            raise ValueError("Per-task successes disagree with aggregate success rate")
 
     eval_s = overall.get("eval_s") if overall else None
     eval_ep_s = overall.get("eval_ep_s") if overall else None
@@ -198,7 +207,28 @@ def get_flat_successes(res: ExperimentResult) -> List[bool]:
     reconstructs a list from the total success count (losing task structure).
     """
     if res.task_successes:
-        return [s for lst in res.task_successes.values() for s in lst]
+        return [s for t in sorted(res.task_successes) for s in res.task_successes[t]]
     return [True] * res.success_count + [False] * (
         res.n_episodes - res.success_count
     )
+
+
+def paired_successes(baseline: ExperimentResult, condition: ExperimentResult):
+    """Align outcomes by task ID and episode index; reject missing pair data.
+
+    Returns:
+        Two Boolean lists with matching episode identities.
+
+    Raises:
+        ValueError: Per-task lists are absent or their identities/counts differ.
+
+    Initial-state equality remains an assumption of the evaluation protocol;
+    aggregate counts alone cannot establish or reconstruct valid episode pairs.
+    """
+    if not baseline.task_successes or not condition.task_successes:
+        raise ValueError("Paired inference requires per-task episode outcomes")
+    if baseline.task_successes.keys() != condition.task_successes.keys():
+        raise ValueError("Paired task IDs differ")
+    if any(len(baseline.task_successes[t]) != len(condition.task_successes[t]) for t in baseline.task_successes):
+        raise ValueError("Paired episode counts differ")
+    return get_flat_successes(baseline), get_flat_successes(condition)

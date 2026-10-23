@@ -12,6 +12,8 @@ from scipy import stats
 
 def wilson_ci(k: int, n: int, alpha: float = 0.05) -> Tuple[float, float]:
     """Wilson score interval for a binomial proportion."""
+    if n < 0 or k < 0 or k > n or not 0 < alpha < 1:
+        raise ValueError("Require 0 <= k <= n and 0 < alpha < 1")
     if n <= 0:
         return np.nan, np.nan
     z = stats.norm.ppf(1 - alpha / 2)
@@ -19,14 +21,16 @@ def wilson_ci(k: int, n: int, alpha: float = 0.05) -> Tuple[float, float]:
     denom = 1 + z**2 / n
     centre = (p + z**2 / (2 * n)) / denom
     half = z * np.sqrt((p * (1 - p) / n + z**2 / (4 * n**2))) / denom
-    return max(0.0, centre - half), min(1.0, centre + half)
+    return (0.0 if k == 0 else max(0.0, centre - half),
+            1.0 if k == n else min(1.0, centre + half))
 
 
 def cohens_d(group1: List[bool], group2: List[bool]) -> float:
     """Cohen's d with pooled standard deviation.
 
-    Returns NaN if either group has zero variance, since d is not applicable
-    when the pooled standard deviation is zero.
+    Legacy independent-group helper, unused by the paired analysis. This
+    project conservatively returns NaN if either variance is zero; that is a
+    reporting convention, not a general mathematical restriction on Cohen's d.
     """
     a = np.asarray(group1, dtype=float)
     b = np.asarray(group2, dtype=float)
@@ -81,11 +85,25 @@ def safe_anova(groups: List[List[bool]]) -> Tuple[float, float]:
         return np.nan, np.nan
 
 
-def holm_adjust(p_values: List[Tuple[str, float]]) -> List[float]:
-    """Holm correction. Returns adjusted p-values in the same order."""
+def holm_adjust(p_values) -> List[float]:
+    """Holm correction retaining input order and monotonic adjusted values.
+
+    Args:
+        p_values: Float probabilities or legacy (label, probability) tuples.
+            NaN entries remain NaN and are excluded from the tested family.
+
+    Returns:
+        Adjusted probabilities in the same order.
+
+    Raises:
+        ValueError: A finite input probability is outside [0, 1].
+    """
     m = len(p_values)
     adjusted = [np.nan] * m
-    valid = [(i, p) for i, (_, p) in enumerate(p_values) if not np.isnan(p)]
+    values = [float(x[1] if isinstance(x, tuple) else x) for x in p_values]
+    if any(not np.isnan(p) and not 0 <= p <= 1 for p in values):
+        raise ValueError("p-values must be in [0, 1] or NaN")
+    valid = [(i, p) for i, p in enumerate(values) if not np.isnan(p)]
     if not valid:
         return adjusted
     valid_sorted = sorted(valid, key=lambda x: x[1])
@@ -123,3 +141,27 @@ def significance_marker(p: float) -> str:
     if p < 0.1:
         return "."
     return "ns"
+
+
+def exact_mcnemar(baseline, condition):
+    """Compute discordant counts and the two-sided exact paired binary test.
+
+    Args:
+        baseline: Nonempty binary outcomes in task/episode order.
+        condition: Outcomes for the same episode identities, in the same order.
+
+    Returns:
+        (baseline_only, condition_only, p), with p=1 for no discordant pairs.
+
+    Raises:
+        ValueError: Outcomes are empty, nonbinary, or mismatched in length.
+    """
+    a, b = np.asarray(baseline), np.asarray(condition)
+    if a.ndim != 1 or b.ndim != 1 or not a.size or a.shape != b.shape:
+        raise ValueError("Matched outcomes must be nonempty equal-length vectors")
+    if not np.isin(a, [0, 1]).all() or not np.isin(b, [0, 1]).all():
+        raise ValueError("Outcomes must be binary")
+    loss = int(np.sum((a == 1) & (b == 0)))
+    gain = int(np.sum((a == 0) & (b == 1)))
+    p = 1.0 if loss + gain == 0 else float(stats.binomtest(loss, loss + gain, 0.5).pvalue)
+    return loss, gain, p

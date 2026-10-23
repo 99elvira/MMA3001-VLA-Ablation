@@ -1,8 +1,7 @@
 @echo off
 REM Regenerate analysis outputs from existing results.
 
-cd /d D:\MMA3001_Project
-conda activate vla_project
-
-python github_repo\src\analysis.py
+cd /d "%~dp0.."
+python -m src.analysis
+if errorlevel 1 exit /b 1
 echo Analysis regenerated.

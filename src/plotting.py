@@ -1,125 +1,105 @@
-# -*- coding: utf-8 -*-
-"""Plotting functions for the MMA3001 VLA ablation analysis."""
-
-from __future__ import annotations
-
-from typing import Dict
-
+"""Scientific figures derived from log-parsed outcomes, with no data hardcoding."""
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+from matplotlib.colors import ListedColormap
 
-from src.config import FIG_DIR
+plt.rcParams.update({"font.family": "Times New Roman", "font.size": 13})
 
 
-def plot_ablation_success_bar(df: pd.DataFrame) -> None:
-    """Bar chart with Wilson 95% CI and E0 baseline."""
-    fig, ax = plt.subplots(figsize=(10, 6))
-    x = np.arange(len(df))
-    rate = df["success_rate_pct"].values
-    lower = df["wilson_ci_lower_pct"].values
-    upper = df["wilson_ci_upper_pct"].values
-    err = np.vstack([rate - lower, upper - rate])
-    ax.bar(x, rate, yerr=err, capsize=5, color="steelblue", alpha=0.85)
-    e0_rate = df.loc[df["key"] == "E0", "success_rate_pct"].values[0]
-    ax.axhline(e0_rate, color="red", linestyle="--", linewidth=1.5, label="E0 baseline")
-    ax.set_xticks(x)
-    ax.set_xticklabels(df["key"])
-    ax.set_ylabel("Success rate (%)")
-    ax.set_title("Ablation success rate with Wilson 95% CI")
-    ax.set_ylim(0, 105)
+def _success(df, path, title, tick_labels=None, xlabel=None):
+    """Plot success percentages with asymmetric Wilson confidence intervals."""
+    fig, ax = plt.subplots(figsize=(9, 4.8))
+    rate = df.success_rate_pct.to_numpy()
+    err = np.vstack([rate - df.wilson_ci_lower_pct, df.wilson_ci_upper_pct - rate])
+    colors = ["#4C72B0" if k.startswith("E") else "#7FB3D5" if int(k[1:]) <= 4 else "#C0392B" for k in df.key]
+    ax.bar(df.key, rate, yerr=err, capsize=4, color=colors)
+    ax.axhline(rate[0], color="gray", linestyle="--", label="E0 baseline")
     for i, v in enumerate(rate):
-        ax.text(i, v + 2, f"{v:.1f}", ha="center", va="bottom", fontsize=9)
-    ax.legend()
+        ax.text(i, float(df.wilson_ci_upper_pct.iloc[i]) + 1.5, f"{v:.2f}", ha="center", fontsize=11)
+    ax.set(ylim=(0, 105), ylabel="Success rate (%)", title=title)
+    if tick_labels is not None:
+        ax.set_xticks(range(len(df)), tick_labels)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    ax.legend(loc="lower left")
     fig.tight_layout()
-    fig.savefig(FIG_DIR / "ablation_success_bar.png", dpi=300)
+    fig.savefig(path, dpi=240)
     plt.close(fig)
 
 
-def plot_effect_size_forest(df: pd.DataFrame) -> None:
-    """Forest plot of absolute difference vs E0."""
-    sub = df[df["key"] != "E0"].copy()
-    if sub.empty:
-        return
-    fig, ax = plt.subplots(figsize=(10, 6))
-    y = np.arange(len(sub))
-    diff = sub["diff_vs_E0_pp"].values
-    lower = sub["diff_ci_lower_pp"].values
-    upper = sub["diff_ci_upper_pp"].values
-    err = np.vstack([diff - lower, upper - diff])
-    ax.errorbar(diff, y, xerr=err, fmt="o", capsize=5, color="darkred")
-    ax.axvline(0, color="gray", linestyle="--", linewidth=1.2)
-    ax.set_yticks(y)
-    ax.set_yticklabels(sub["key"])
-    ax.set_xlabel("Success rate difference vs E0 (percentage points)")
-    ax.set_title("Effect size forest plot (absolute difference vs E0)")
-    ax.grid(True, alpha=0.3)
-    for i, (_, row) in enumerate(sub.iterrows()):
-        d = row["cohen_d_vs_E0"]
-        label = f"d={d:.2f}" if pd.notna(d) else "d=NA"
-        ax.text(row["diff_vs_E0_pp"] + 1.0, i, label, va="center", fontsize=9)
-    fig.tight_layout()
-    fig.savefig(FIG_DIR / "effect_size_forest.png", dpi=300)
-    plt.close(fig)
+def make_figures(e_df, p_df, results, directory):
+    """Write success, runtime, paired-task and episode-failure figures.
+
+    Args:
+        e_df: E0-E5 statistics including Wilson endpoints and wall times.
+        p_df: P1-P8 statistics.
+        results: Parsed outcomes keyed by experiment ID.
+        directory: Destination directory, created if absent.
+
+    Returns:
+        None. Files are written without modifying the source experiment logs.
+    """
+    import pandas as pd
+    directory.mkdir(parents=True, exist_ok=True)
+    _success(e_df, directory / "ablation_success_bar.png", "Ablation success with Wilson 95% confidence intervals")
+    cameras = pd.concat([e_df.iloc[[0]], p_df], ignore_index=True)
+    _success(cameras, directory / "fig_4_7a_success_rate.png", "Camera translations: 30 episodes per condition")
+    _success(cameras, directory / "primary_camera_axes.png", "Primary camera translations with Wilson 95% intervals",
+             ['E0\nBaseline', 'P1\nz +0.15', 'P2\nz -0.15', 'P3\nx -0.20', 'P4\nx +0.20',
+              'P5\nx +0.03', 'P6\nx -0.03', 'P7\ny +0.03', 'P8\nz +0.03'],
+             'Signed displacement (m): P1-P4 external, P5-P8 wrist local axes')
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    ax.bar(e_df.key, e_df.eval_ep_s, color="#4C72B0")
+    for i, v in enumerate(e_df.eval_ep_s):
+        ax.text(i, v + 2, f"{v:.2f}", ha="center", fontsize=11)
+    ax.set(ylabel="Seconds per episode", title="Recorded end-to-end evaluation time")
+    fig.tight_layout(); fig.savefig(directory / "eval_ep_s_bar.png", dpi=240); plt.close(fig)
+    fig, ax = plt.subplots(figsize=(6, 6))
+    rng = np.random.default_rng(42)
+    base = results["E0"]
+    for key in e_df.key[1:]:
+        other = results[key]
+        tasks = sorted(base.task_successes)
+        x = np.array([np.mean(base.task_successes[t]) for t in tasks])
+        y = np.array([np.mean(other.task_successes[t]) for t in tasks])
+        ax.scatter(x + rng.uniform(-.012, .012, len(x)), y + rng.uniform(-.012, .012, len(y)), label=key, alpha=.7)
+    ax.plot([0, 1], [0, 1], "k--")
+    ax.set(xlim=(-.05, 1.05), ylim=(-.05, 1.05), xlabel="E0 task success rate", ylabel="Condition task success rate", title="Task-level outcomes (display jitter only)")
+    ax.legend(); fig.tight_layout(); fig.savefig(directory / "paired_scatter.png", dpi=240); plt.close(fig)
+    labels = list(cameras.key)
+    matrix = [[int(not s) for t in sorted(results[k].task_successes) for s in results[k].task_successes[t]] for k in labels]
+    fig, ax = plt.subplots(figsize=(10, 3.8))
+    ax.imshow(matrix, aspect="auto", cmap=ListedColormap(["#F4F6F7", "#C0392B"]), vmin=0, vmax=1)
+    ax.set_yticks(range(len(labels)), labels)
+    ax.set_xticks([3*t+1 for t in range(10)], [f"T{t}" for t in range(10)])
+    ax.set(xlabel="Three ordered episodes per task", title="Episode failures: red = failure, white = success")
+    for t in range(1, 10): ax.axvline(3*t-.5, color="black", linewidth=.5)
+    fig.tight_layout(); fig.savefig(directory / "fig_4_7b_failure_heatmap.png", dpi=240); plt.close(fig)
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.barh(e_df.key[1:], e_df.diff_vs_E0_pp[1:], color="#C0392B")
+    ax.set(xlabel="Difference from E0 (percentage points)", title="Observed paired success difference (point estimates)")
+    fig.tight_layout(); fig.savefig(directory / "effect_size_forest.png", dpi=240); plt.close(fig)
 
 
-def plot_paired_scatter(results: Dict) -> None:
-    """Paired task-level success rates (E0 vs ablations)."""
-    if "E0" not in results:
-        return
-    e0 = results["E0"]
-    if not e0.task_successes:
-        print("[WARN] E0 has no per-task successes; skip paired_scatter.png")
-        return
-    fig, ax = plt.subplots(figsize=(8, 8))
-    colors = plt.cm.tab10(np.linspace(0, 1, len(results) - 1))
-    idx = 0
-    for key, res in results.items():
-        if key == "E0" or not res.task_successes:
-            continue
-        xs, ys = [], []
-        for task_id in sorted(e0.task_successes.keys()):
-            if task_id not in res.task_successes:
-                continue
-            x = sum(e0.task_successes[task_id]) / len(e0.task_successes[task_id])
-            y = sum(res.task_successes[task_id]) / len(res.task_successes[task_id])
-            jitter = 0.02
-            xs.append(x + np.random.uniform(-jitter, jitter))
-            ys.append(y + np.random.uniform(-jitter, jitter))
-        ax.scatter(xs, ys, label=key, alpha=0.75, s=70, color=colors[idx])
-        idx += 1
-    ax.plot([0, 1], [0, 1], "k--", linewidth=1.2, label="y = x")
-    ax.set_xlabel("E0 task success rate")
-    ax.set_ylabel("Ablation task success rate")
-    ax.set_title("Paired task-level success rates (E0 vs ablations)")
-    ax.set_xlim(-0.05, 1.05)
-    ax.set_ylim(-0.05, 1.05)
-    ax.grid(True, alpha=0.3)
-    ax.legend()
-    fig.tight_layout()
-    fig.savefig(FIG_DIR / "paired_scatter.png", dpi=300)
-    plt.close(fig)
+def plot_wrist_magnitudes(p_df, q_df, path):
+    """Compare the two observed wrist-translation magnitudes by direction.
 
-
-def plot_eval_ep_s_bar(df: pd.DataFrame) -> None:
-    """Bar chart of eval_ep_s across experiments."""
-    fig, ax = plt.subplots(figsize=(10, 6))
-    keys = df["key"].values
-    values = df["eval_ep_s"].values
-    colors = ["steelblue"] * len(keys)
-    if "E4" in keys:
-        colors[list(keys).index("E4")] = "firebrick"
-    bars = ax.bar(keys, values, color=colors)
-    ax.set_ylabel("eval_ep_s (seconds per episode)")
-    ax.set_title("Average time per episode for each experiment")
-    e0_val = df.loc[df["key"] == "E0", "eval_ep_s"].values[0]
-    ax.axhline(e0_val, color="gray", linestyle="--", linewidth=1, label="E0 baseline")
-    for bar, val in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width() / 2, val + 2, f"{val:.2f}",
-                ha="center", va="bottom", fontsize=9)
-    ax.legend()
-    fig.tight_layout()
-    fig.savefig(FIG_DIR / "eval_ep_s_bar.png", dpi=300)
-    plt.close(fig)
+    Args:
+        p_df: Primary camera statistics, including P5-P8 at 0.03 m.
+        q_df: Supplementary Q1-Q4 statistics at 0.05 m.
+        path: Destination PNG. Error bars show separate Wilson intervals.
+    """
+    small=p_df[p_df.key.isin(['P5','P6','P7','P8'])]
+    x=np.arange(4);fig,ax=plt.subplots(figsize=(8.5,4.5))
+    for delta,df,label,color in [(-.18,small,'0.03 m','#4C72B0'),(.18,q_df,'0.05 m (supplementary)','#C0392B')]:
+        rate=df.success_rate_pct.to_numpy()
+        err=np.vstack([rate-df.wilson_ci_lower_pct,df.wilson_ci_upper_pct-rate])
+        ax.bar(x+delta,rate,.34,yerr=err,capsize=3,label=label,color=color)
+        for i,v in enumerate(rate):ax.text(i+delta,float(df.wilson_ci_upper_pct.iloc[i])+1.5,f'{v:.1f}',ha='center',fontsize=10)
+    ax.axhline(100*28/30,linestyle='--',color='gray',label='E0 baseline')
+    ax.set_xticks(x,['x +\nForward','x -\nBackward','y +\nLateral','z +\nVertical'])
+    ax.set(ylim=(0,110),ylabel='Success rate (%)',title='Wrist translation by direction and magnitude')
+    ax.legend(loc='lower left',fontsize=10);fig.tight_layout();fig.savefig(path,dpi=240)
+    fig.savefig(path.with_name('wrist_axes_magnitudes.png'),dpi=240);plt.close(fig)

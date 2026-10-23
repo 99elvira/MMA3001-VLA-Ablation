@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "path": "baseline_results.txt",
+      "sha256": "973703d7b1d991a90dba62946a50c47703ee3c7f452ea99496db9b2464dec334",
+      "bytes": 1187127
+    },
+    {
+      "path": "integration/E0_steps20.txt",
+      "sha256": "483424c06aaffb12b0b773d4f4b8a5a4c619ba686a6e228f344eb5fd25dc7d64",
+      "bytes": 1201600
+    },
+    {
+      "path": "integration/N=20.txt",
+      "sha256": "915a7ddb90502c980dcfc88eedb80d8c780e5770b49006cf809a640754ea40bd",
+      "bytes": 14611
+    },
+    {
+      "path": "integration/E0_steps40.txt",
+      "sha256": "e11b225d3842a0d15e5c1276baa158cf587e2a65612faee39ccd0c5a1d2a613a",
+      "bytes": 1233103
+    },
+    {
+      "path": "integration/N=40.txt",
+      "sha256": "e58e301e06d91185a8985e7be5f57fe72ca38fafafacd809234afebed2035f79",
+      "bytes": 14606
+    }
+  ],
+  "distinct_new_runs": 2,
+  "aggregate_extracts_are_not_repetitions": true,
+  "baseline_is_reused_not_rerun": true,
+  "timing": "End-to-end eval_ep_s; not isolated inference latency",
+  "matching": "Task ID and ordered episode; exact initial states/noise not archived",
+  "convergence": "No fixed-input action differences or numerical error estimates supplied"
+}

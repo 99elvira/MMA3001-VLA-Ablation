@@ -1,117 +1,43 @@
-==========================================================================================
-MMA3001 VLA Robotic Grasping Ablation Analysis Report
-==========================================================================================
-Generated at: 2026-09-30 17:01:30
+Wilson 95% intervals; exact paired McNemar; separate Holm families (5 and 8).
+Pairs: task ID and episode index; initial-state equality relies on the evaluation protocol.
+Single seed, three episodes per task: inference is conditional on this finite task sample.
 
-1. Experiment summary
-------------------------------------------------------------------------------------------
-E0 baseline: 28/30 = 93.33%
-    Wilson 95% CI: [78.68%, 98.15%]
-    eval_s: 3359.743375301361, eval_ep_s: 111.9914458433787
-E1 no_agentview: 0/30 = 0.00%
-    Wilson 95% CI: [0.00%, 11.35%]
-    eval_s: 4933.903322935104, eval_ep_s: 164.4634440978368
-E2 no_wrist: 0/30 = 0.00%
-    Wilson 95% CI: [0.00%, 11.35%]
-    eval_s: 5034.228844642639, eval_ep_s: 167.80762815475464
-E3 no_state: 0/30 = 0.00%
-    Wilson 95% CI: [0.00%, 11.35%]
-    eval_s: 5561.966193199158, eval_ep_s: 185.3988731066386
-E4 use_chunk: 17/30 = 56.67%
-    Wilson 95% CI: [39.20%, 72.62%]
-    eval_s: 238.98815155029297, eval_ep_s: 7.966271718343099
-E5 ema: 17/30 = 56.67%
-    Wilson 95% CI: [39.20%, 72.62%]
-    eval_s: 3910.688687324524, eval_ep_s: 130.35628957748412
+key         name  success_count  n_episodes  success_rate_pct  wilson_ci_lower_pct  wilson_ci_upper_pct  diff_vs_E0_pp  baseline_only  condition_only    mcnemar_p  eval_ep_s  holm_adjusted_p
+ E0     baseline             28          30         93.333333            78.676542            98.152298       0.000000            NaN             NaN          NaN 111.991446              NaN
+ E1 no_agentview              0          30          0.000000             0.000000            11.351339     -93.333333           28.0             0.0 7.450581e-09 164.463444     3.725290e-08
+ E2     no_wrist              0          30          0.000000             0.000000            11.351339     -93.333333           28.0             0.0 7.450581e-09 167.807628     3.725290e-08
+ E3     no_state              0          30          0.000000             0.000000            11.351339     -93.333333           28.0             0.0 7.450581e-09 185.398873     3.725290e-08
+ E4    use_chunk             17          30         56.666667            39.197307            72.622514     -36.666667           12.0             1.0 3.417969e-03   7.966272     6.835938e-03
+ E5          ema             17          30         56.666667            39.197307            72.622514     -36.666667           13.0             2.0 7.385254e-03 130.356290     7.385254e-03
 
-2. Overall ANOVA across 6 groups
-------------------------------------------------------------------------------------------
-One-way ANOVA: F = 50.406426, p = 4.210680e-32
+key     name  success_count  n_episodes  success_rate_pct  wilson_ci_lower_pct  wilson_ci_upper_pct  diff_vs_E0_pp  baseline_only  condition_only  mcnemar_p  eval_ep_s  holm_adjusted_p
+ P1 external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  91.395546         1.000000
+ P2 external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  88.357032         1.000000
+ P3 external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  82.398462         1.000000
+ P4 external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  88.601744         1.000000
+ P5    wrist             27          30         90.000000            74.378917            96.540011      -3.333333              3               2   1.000000  98.654361         1.000000
+ P6    wrist             16          30         53.333333            36.142300            69.767611     -40.000000             13               1   0.001831 124.752009         0.014648
+ P7    wrist             28          30         93.333333            78.676542            98.152298       0.000000              2               2   1.000000  94.988714         1.000000
+ P8    wrist             25          30         83.333333            66.435649            92.663458     -10.000000              5               2   0.453125  98.427939         1.000000
 
-3. Pairwise comparisons vs E0 (E1-E5), Holm-adjusted
-------------------------------------------------------------------------------------------
-Comparison     Diff(pp)             95% CI(pp)    Cohen d      Welch p     Fisher p       Holm p    Sig
-E1 vs E0         -93.33      [-102.26, -84.41]         NA           NA   8.3880e-15   4.1940e-14    ***
-E2 vs E0         -93.33      [-102.26, -84.41]         NA           NA   8.3880e-15   4.1940e-14    ***
-E3 vs E0         -93.33      [-102.26, -84.41]         NA           NA   8.3880e-15   4.1940e-14    ***
-E4 vs E0         -36.67       [-56.52, -16.81]    -0.9190           NA   2.1286e-03   4.2571e-03     **
-E5 vs E0         -36.67       [-56.52, -16.81]    -0.9190           NA   2.1286e-03   4.2571e-03     **
+Supplementary 0.05 m (four exploratory comparisons):
+key                name  success_count  n_episodes  success_rate_pct  wilson_ci_lower_pct  wilson_ci_upper_pct  diff_vs_E0_pp  baseline_only  condition_only  mcnemar_p  eval_ep_s  holm_adjusted_p
+ Q1  wrist_forward_0.05             24          30         80.000000            62.694304            90.494893     -13.333333              6               2   0.289062 101.910742         0.578125
+ Q2 wrist_backward_0.05             20          30         66.666667            48.780052            80.769502     -26.666667              8               0   0.007812 114.673893         0.023438
+ Q3  wrist_lateral_0.05             25          30         83.333333            66.435649            92.663458     -10.000000              4               1   0.375000  97.244568         0.578125
+ Q4 wrist_vertical_0.05             13          30         43.333333            27.377486            60.802693     -50.000000             16               1   0.000275 123.805091         0.001099
 
-4. Statistical notes
-------------------------------------------------------------------------------------------
-- Wilson 95% CI is reported for each group's success rate.
-- Welch t-test uses equal_var=False. If any group's variance is zero, Welch is invalid and Fisher exact test is used instead.
-- Cohen's d uses pooled standard deviation. If any group's variance is zero, d is NaN (not applicable).
-- For E1/E2/E3, success rate is 0/30, variance is zero. Cohen's d is not applicable. Fisher exact test is used.
-- Holm correction is applied to the 5 comparisons E1-E5 vs E0.
-
-5. Per-task success details
-------------------------------------------------------------------------------------------
-E0 (baseline):
-    task 0: [True, False, True] -> 2/3
-    task 1: [True, True, True] -> 3/3
-    task 2: [True, True, True] -> 3/3
-    task 3: [True, True, True] -> 3/3
-    task 4: [True, True, True] -> 3/3
-    task 5: [True, True, False] -> 2/3
-    task 6: [True, True, True] -> 3/3
-    task 7: [True, True, True] -> 3/3
-    task 8: [True, True, True] -> 3/3
-    task 9: [True, True, True] -> 3/3
-E1 (no_agentview):
-    task 0: [False, False, False] -> 0/3
-    task 1: [False, False, False] -> 0/3
-    task 2: [False, False, False] -> 0/3
-    task 3: [False, False, False] -> 0/3
-    task 4: [False, False, False] -> 0/3
-    task 5: [False, False, False] -> 0/3
-    task 6: [False, False, False] -> 0/3
-    task 7: [False, False, False] -> 0/3
-    task 8: [False, False, False] -> 0/3
-    task 9: [False, False, False] -> 0/3
-E2 (no_wrist):
-    task 0: [False, False, False] -> 0/3
-    task 1: [False, False, False] -> 0/3
-    task 2: [False, False, False] -> 0/3
-    task 3: [False, False, False] -> 0/3
-    task 4: [False, False, False] -> 0/3
-    task 5: [False, False, False] -> 0/3
-    task 6: [False, False, False] -> 0/3
-    task 7: [False, False, False] -> 0/3
-    task 8: [False, False, False] -> 0/3
-    task 9: [False, False, False] -> 0/3
-E3 (no_state):
-    task 0: [False, False, False] -> 0/3
-    task 1: [False, False, False] -> 0/3
-    task 2: [False, False, False] -> 0/3
-    task 3: [False, False, False] -> 0/3
-    task 4: [False, False, False] -> 0/3
-    task 5: [False, False, False] -> 0/3
-    task 6: [False, False, False] -> 0/3
-    task 7: [False, False, False] -> 0/3
-    task 8: [False, False, False] -> 0/3
-    task 9: [False, False, False] -> 0/3
-E4 (use_chunk):
-    task 0: [False, True, False] -> 1/3
-    task 1: [True, True, True] -> 3/3
-    task 2: [True, True, True] -> 3/3
-    task 3: [True, False, False] -> 1/3
-    task 4: [False, True, False] -> 1/3
-    task 5: [True, True, False] -> 2/3
-    task 6: [False, True, True] -> 2/3
-    task 7: [False, True, False] -> 1/3
-    task 8: [True, True, False] -> 2/3
-    task 9: [False, True, False] -> 1/3
-E5 (ema):
-    task 0: [True, True, False] -> 2/3
-    task 1: [False, False, True] -> 1/3
-    task 2: [False, True, True] -> 2/3
-    task 3: [False, False, False] -> 0/3
-    task 4: [False, False, True] -> 1/3
-    task 5: [True, True, True] -> 3/3
-    task 6: [True, True, False] -> 2/3
-    task 7: [True, False, False] -> 1/3
-    task 8: [True, True, True] -> 3/3
-    task 9: [True, False, True] -> 2/3
-
-End of report.
+Sensitivity check: Holm correction over ALL 12 camera comparisons:
+key                name  success_count  n_episodes  success_rate_pct  wilson_ci_lower_pct  wilson_ci_upper_pct  diff_vs_E0_pp  baseline_only  condition_only  mcnemar_p  eval_ep_s  holm_adjusted_p  holm_all_12
+ P1            external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  91.395546         1.000000     1.000000
+ P2            external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  88.357032         1.000000     1.000000
+ P3            external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  82.398462         1.000000     1.000000
+ P4            external             28          30         93.333333            78.676542            98.152298       0.000000              0               0   1.000000  88.601744         1.000000     1.000000
+ P5               wrist             27          30         90.000000            74.378917            96.540011      -3.333333              3               2   1.000000  98.654361         1.000000     1.000000
+ P6               wrist             16          30         53.333333            36.142300            69.767611     -40.000000             13               1   0.001831 124.752009         0.014648     0.020142
+ P7               wrist             28          30         93.333333            78.676542            98.152298       0.000000              2               2   1.000000  94.988714         1.000000     1.000000
+ P8               wrist             25          30         83.333333            66.435649            92.663458     -10.000000              5               2   0.453125  98.427939         1.000000     1.000000
+ Q1  wrist_forward_0.05             24          30         80.000000            62.694304            90.494893     -13.333333              6               2   0.289062 101.910742         0.578125     1.000000
+ Q2 wrist_backward_0.05             20          30         66.666667            48.780052            80.769502     -26.666667              8               0   0.007812 114.673893         0.023438     0.078125
+ Q3  wrist_lateral_0.05             25          30         83.333333            66.435649            92.663458     -10.000000              4               1   0.375000  97.244568         0.578125     1.000000
+ Q4 wrist_vertical_0.05             13          30         43.333333            27.377486            60.802693     -50.000000             16               1   0.000275 123.805091         0.001099     0.003296

@@ -1,75 +1,324 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>MMA3001 Ablation Results - Interactive Table</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
-        h1 { color: #333; }
-        table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        th { background: #4a7ebb; color: white; cursor: pointer; user-select: none; }
-        th:hover { background: #3a6ea8; }
-        tr:nth-child(even) { background: #f2f2f2; }
-        .sig-3 { color: darkred; font-weight: bold; }
-        .sig-2 { color: red; font-weight: bold; }
-        .sig-1 { color: orange; font-weight: bold; }
-        .sig-ns { color: gray; }
-    </style>
-</head>
-<body>
-
-<h1>MMA3001 VLA Ablation Study - Results Summary</h1>
-<p>Click a column header to sort. Data from <code>results/summary.csv</code>.</p>
-
-<table id="resultsTable">
-    <thead>
-        <tr>
-            <th onclick="sortTable(0)">Experiment</th>
-            <th onclick="sortTable(1)">Name</th>
-            <th onclick="sortTable(2)">Success Count</th>
-            <th onclick="sortTable(3)">N Episodes</th>
-            <th onclick="sortTable(4)">Success Rate (%)</th>
-            <th onclick="sortTable(5)">Wilson Lower (%)</th>
-            <th onclick="sortTable(6)">Wilson Upper (%)</th>
-            <th onclick="sortTable(7)">Diff vs E0 (pp)</th>
-            <th onclick="sortTable(8)">Cohen's d</th>
-            <th onclick="sortTable(9)">Holm p</th>
-            <th onclick="sortTable(10)">Sig.</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr><td>E0</td><td>baseline</td><td>28</td><td>30</td><td>93.33</td><td>78.68</td><td>98.15</td><td>0.00</td><td>NA</td><td>NA</td><td></td></tr>
-        <tr><td>E1</td><td>no_agentview</td><td>0</td><td>30</td><td>0.00</td><td>0.00</td><td>11.35</td><td>-93.33</td><td>NA</td><td>4.19e-14</td><td class="sig-3">***</td></tr>
-        <tr><td>E2</td><td>no_wrist</td><td>0</td><td>30</td><td>0.00</td><td>0.00</td><td>11.35</td><td>-93.33</td><td>NA</td><td>4.19e-14</td><td class="sig-3">***</td></tr>
-        <tr><td>E3</td><td>no_state</td><td>0</td><td>30</td><td>0.00</td><td>0.00</td><td>11.35</td><td>-93.33</td><td>NA</td><td>4.19e-14</td><td class="sig-3">***</td></tr>
-        <tr><td>E4</td><td>use_chunk</td><td>17</td><td>30</td><td>56.67</td><td>39.20</td><td>72.62</td><td>-36.67</td><td>-0.919</td><td>4.26e-03</td><td class="sig-2">**</td></tr>
-        <tr><td>E5</td><td>ema</td><td>17</td><td>30</td><td>56.67</td><td>39.20</td><td>72.62</td><td>-36.67</td><td>-0.919</td><td>4.26e-03</td><td class="sig-2">**</td></tr>
-    </tbody>
-</table>
-
-<script>
-function sortTable(colIndex) {
-    const table = document.getElementById("resultsTable");
-    const tbody = table.tBodies[0];
-    const rows = Array.from(tbody.rows);
-    const asc = !table.dataset["sortAsc" + colIndex] || table.dataset["sortAsc" + colIndex] === "false";
-    table.dataset["sortAsc" + colIndex] = asc;
-
-    rows.sort((a, b) => {
-        const va = a.cells[colIndex].innerText.trim();
-        const vb = b.cells[colIndex].innerText.trim();
-        const na = parseFloat(va);
-        const nb = parseFloat(vb);
-        if (!isNaN(na) && !isNaN(nb)) {
-            return asc ? na - nb : nb - na;
-        }
-        return asc ? va.localeCompare(vb) : vb.localeCompare(va);
-    });
-
-    rows.forEach(r => tbody.appendChild(r));
-}
-</script>
-
-</body>
-</html>
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Verified paired results</title><style>body{font-family:"Times New Roman",serif;margin:2em}table{border-collapse:collapse}td,th{border:1px solid #ddd;padding:.5em}</style><h1>Verified paired analysis</h1><p>Counts from original logs. Wilson intervals; exact McNemar; separate Holm families. The camera table additionally shows the conservative all-12 correction.</p><h2>E0-E5</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>key</th>
+      <th>name</th>
+      <th>success_count</th>
+      <th>n_episodes</th>
+      <th>success_rate_pct</th>
+      <th>wilson_ci_lower_pct</th>
+      <th>wilson_ci_upper_pct</th>
+      <th>diff_vs_E0_pp</th>
+      <th>baseline_only</th>
+      <th>condition_only</th>
+      <th>mcnemar_p</th>
+      <th>eval_ep_s</th>
+      <th>holm_adjusted_p</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>E0</td>
+      <td>baseline</td>
+      <td>28</td>
+      <td>30</td>
+      <td>93.333333</td>
+      <td>78.676542</td>
+      <td>98.152298</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>111.991446</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>E1</td>
+      <td>no_agentview</td>
+      <td>0</td>
+      <td>30</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>11.351339</td>
+      <td>-93.333333</td>
+      <td>28.0</td>
+      <td>0.0</td>
+      <td>7.450581e-09</td>
+      <td>164.463444</td>
+      <td>3.725290e-08</td>
+    </tr>
+    <tr>
+      <td>E2</td>
+      <td>no_wrist</td>
+      <td>0</td>
+      <td>30</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>11.351339</td>
+      <td>-93.333333</td>
+      <td>28.0</td>
+      <td>0.0</td>
+      <td>7.450581e-09</td>
+      <td>167.807628</td>
+      <td>3.725290e-08</td>
+    </tr>
+    <tr>
+      <td>E3</td>
+      <td>no_state</td>
+      <td>0</td>
+      <td>30</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>11.351339</td>
+      <td>-93.333333</td>
+      <td>28.0</td>
+      <td>0.0</td>
+      <td>7.450581e-09</td>
+      <td>185.398873</td>
+      <td>3.725290e-08</td>
+    </tr>
+    <tr>
+      <td>E4</td>
+      <td>use_chunk</td>
+      <td>17</td>
+      <td>30</td>
+      <td>56.666667</td>
+      <td>39.197307</td>
+      <td>72.622514</td>
+      <td>-36.666667</td>
+      <td>12.0</td>
+      <td>1.0</td>
+      <td>3.417969e-03</td>
+      <td>7.966272</td>
+      <td>6.835938e-03</td>
+    </tr>
+    <tr>
+      <td>E5</td>
+      <td>ema</td>
+      <td>17</td>
+      <td>30</td>
+      <td>56.666667</td>
+      <td>39.197307</td>
+      <td>72.622514</td>
+      <td>-36.666667</td>
+      <td>13.0</td>
+      <td>2.0</td>
+      <td>7.385254e-03</td>
+      <td>130.356290</td>
+      <td>7.385254e-03</td>
+    </tr>
+  </tbody>
+</table><h2>Camera results</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>key</th>
+      <th>name</th>
+      <th>success_count</th>
+      <th>n_episodes</th>
+      <th>success_rate_pct</th>
+      <th>wilson_ci_lower_pct</th>
+      <th>wilson_ci_upper_pct</th>
+      <th>diff_vs_E0_pp</th>
+      <th>baseline_only</th>
+      <th>condition_only</th>
+      <th>mcnemar_p</th>
+      <th>eval_ep_s</th>
+      <th>holm_adjusted_p</th>
+      <th>holm_all_12</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>P1</td>
+      <td>external</td>
+      <td>28</td>
+      <td>30</td>
+      <td>93.333333</td>
+      <td>78.676542</td>
+      <td>98.152298</td>
+      <td>0.000000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>91.395546</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>P2</td>
+      <td>external</td>
+      <td>28</td>
+      <td>30</td>
+      <td>93.333333</td>
+      <td>78.676542</td>
+      <td>98.152298</td>
+      <td>0.000000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>88.357032</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>P3</td>
+      <td>external</td>
+      <td>28</td>
+      <td>30</td>
+      <td>93.333333</td>
+      <td>78.676542</td>
+      <td>98.152298</td>
+      <td>0.000000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>82.398462</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>P4</td>
+      <td>external</td>
+      <td>28</td>
+      <td>30</td>
+      <td>93.333333</td>
+      <td>78.676542</td>
+      <td>98.152298</td>
+      <td>0.000000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>88.601744</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>P5</td>
+      <td>wrist</td>
+      <td>27</td>
+      <td>30</td>
+      <td>90.000000</td>
+      <td>74.378917</td>
+      <td>96.540011</td>
+      <td>-3.333333</td>
+      <td>3</td>
+      <td>2</td>
+      <td>1.000000</td>
+      <td>98.654361</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>P6</td>
+      <td>wrist</td>
+      <td>16</td>
+      <td>30</td>
+      <td>53.333333</td>
+      <td>36.142300</td>
+      <td>69.767611</td>
+      <td>-40.000000</td>
+      <td>13</td>
+      <td>1</td>
+      <td>0.001831</td>
+      <td>124.752009</td>
+      <td>0.014648</td>
+      <td>0.020142</td>
+    </tr>
+    <tr>
+      <td>P7</td>
+      <td>wrist</td>
+      <td>28</td>
+      <td>30</td>
+      <td>93.333333</td>
+      <td>78.676542</td>
+      <td>98.152298</td>
+      <td>0.000000</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1.000000</td>
+      <td>94.988714</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>P8</td>
+      <td>wrist</td>
+      <td>25</td>
+      <td>30</td>
+      <td>83.333333</td>
+      <td>66.435649</td>
+      <td>92.663458</td>
+      <td>-10.000000</td>
+      <td>5</td>
+      <td>2</td>
+      <td>0.453125</td>
+      <td>98.427939</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>Q1</td>
+      <td>wrist_forward_0.05</td>
+      <td>24</td>
+      <td>30</td>
+      <td>80.000000</td>
+      <td>62.694304</td>
+      <td>90.494893</td>
+      <td>-13.333333</td>
+      <td>6</td>
+      <td>2</td>
+      <td>0.289062</td>
+      <td>101.910742</td>
+      <td>0.578125</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>Q2</td>
+      <td>wrist_backward_0.05</td>
+      <td>20</td>
+      <td>30</td>
+      <td>66.666667</td>
+      <td>48.780052</td>
+      <td>80.769502</td>
+      <td>-26.666667</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0.007812</td>
+      <td>114.673893</td>
+      <td>0.023438</td>
+      <td>0.078125</td>
+    </tr>
+    <tr>
+      <td>Q3</td>
+      <td>wrist_lateral_0.05</td>
+      <td>25</td>
+      <td>30</td>
+      <td>83.333333</td>
+      <td>66.435649</td>
+      <td>92.663458</td>
+      <td>-10.000000</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0.375000</td>
+      <td>97.244568</td>
+      <td>0.578125</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <td>Q4</td>
+      <td>wrist_vertical_0.05</td>
+      <td>13</td>
+      <td>30</td>
+      <td>43.333333</td>
+      <td>27.377486</td>
+      <td>60.802693</td>
+      <td>-50.000000</td>
+      <td>16</td>
+      <td>1</td>
+      <td>0.000275</td>
+      <td>123.805091</td>
+      <td>0.001099</td>
+      <td>0.003296</td>
+    </tr>
+  </tbody>
+</table><p><a href="api/src.html">Current API documentation</a> | <a href="test_report.html">Test report</a></p></html>
